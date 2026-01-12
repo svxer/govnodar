@@ -4,14 +4,82 @@
     <meta charset="UTF-8">
     <title>stupid slime image</title>
     <link rel="icon" href="./index_files/stupid slime image.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+    <style>
+        .hue-anim {
+            animation: hue-rotate 3s linear infinite;
+            filter: hue-rotate(0deg);
+        }
+        @keyframes hue-rotate {
+            from { filter: hue-rotate(0deg); }
+            to   { filter: hue-rotate(360deg); }
+        }
+        img#slime {
+            display: block;
+            margin: 20px auto;
+            max-width: 90%;
+            height: auto;
+            cursor: default;
+            -webkit-tap-highlight-color: transparent;
+        }
+        img#slime, img#slime:focus {
+            outline: none;
+            border: none;
+            box-shadow: none;
+        }
+        #clock {
+            margin-top: 20px;
+            font-size: 2rem;
+            text-align: center;
+            color: white;
+            font-family: 'Google Sans', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            -webkit-font-feature-settings: "tnum" 1;
+            font-feature-settings: "tnum" 1;
+        }
+    </style>
 </head>
 <body style="background-color: black; color: white;">
-    <img src="./index_files/stupid slime image.png" alt="stupid slime">
+    <img id="slime" src="./index_files/stupid slime image.png" alt="stupid slime" aria-pressed="false">
 
-    <div id="clock" style="margin-top:20px; font-size:2rem; text-align:center; font-family:monospace; color:white;"></div>
-<script>
-function updateClock(){const now=new Date();const h=String(now.getHours()).padStart(2,'0');const m=String(now.getMinutes()).padStart(2,'0');const s=String(now.getSeconds()).padStart(2,'0');document.getElementById('clock').textContent=`${h}:${m}:${s}`;}setInterval(updateClock,1000);updateClock();
-</script>
+    <div id="clock"></div>
 
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        (function(){
+            const img = document.getElementById('slime');
+            if(!img) return;
+
+            img.tabIndex = 0;
+
+            function setPressed(active){
+                img.setAttribute('aria-pressed', active ? 'true' : 'false');
+            }
+
+            img.addEventListener('click', () => {
+                const active = img.classList.toggle('hue-anim');
+                setPressed(active);
+            });
+
+            img.addEventListener('keydown', (e) => {
+                if(e.key === ' ' || e.key === 'Enter'){
+                    e.preventDefault();
+                    img.click();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
