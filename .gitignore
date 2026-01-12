@@ -1,0 +1,18 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Wrangler
+.wrangler/
+dist/
+.mf/
+tmp/
+cache/
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

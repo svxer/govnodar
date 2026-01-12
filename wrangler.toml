@@ -1,0 +1,6 @@
+name = "govnodar"
+main = "workers-site/index.js"
+compatibility_date = "2026-01-12"
+
+[site]
+bucket = "."
