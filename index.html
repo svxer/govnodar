@@ -185,13 +185,13 @@
 
     <script>
         const audioReset = new Audio('./index_files/explode.wav');
+        const audioChime = new Audio('./index_files/clock_chime.mp3');
 
         function updateRollingText(element, nextStr) {
             const currentStr = element.getAttribute('data-value') || "";
             if (currentStr === nextStr) return;
             element.setAttribute('data-value', nextStr);
 
-            // Защита от слипания цифр: если вкладка скрыта, обновляем без анимации
             if (document.hidden || currentStr.length !== nextStr.length) {
                 element.innerHTML = '';
                 for (let char of nextStr) {
@@ -222,12 +222,29 @@
             }
         }
 
+        let lastChimedHour = new Date().getHours();
+
         function updateClock(){
             const n=new Date();
-            const timeStr = String(n.getHours()).padStart(2,'0')+':'+
-                            String(n.getMinutes()).padStart(2,'0')+':'+
-                            String(n.getSeconds()).padStart(2,'0');
+            const hours = n.getHours();
+            const minutes = n.getMinutes();
+            const seconds = n.getSeconds();
+
+            const timeStr = String(hours).padStart(2,'0')+':'+
+                            String(minutes).padStart(2,'0')+':'+
+                            String(seconds).padStart(2,'0');
             const dateStr = n.toLocaleDateString();
+
+            // Проверка для ежечасного боя
+            if (minutes === 0 && seconds === 0 && hours !== lastChimedHour) {
+                audioChime.currentTime = 0;
+                audioChime.play().catch(e => console.log("Audio play blocked until user interaction"));
+                lastChimedHour = hours;
+            } else if (minutes !== 0) {
+                // Сбрасываем метку, когда минута прошла
+                lastChimedHour = -1; 
+            }
+
             updateRollingText(document.getElementById('clock'), timeStr);
             updateRollingText(document.getElementById('date'), dateStr);
         }
