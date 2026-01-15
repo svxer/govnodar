@@ -187,6 +187,12 @@
         const audioReset = new Audio('./index_files/explode.wav');
         const audioChime = new Audio('./index_files/clock_chime.mp3');
 
+        function playSound(audioNode) {
+            const clone = audioNode.cloneNode();
+            clone.play().catch(e => console.log("Audio play blocked"));
+            clone.onended = () => clone.remove();
+        }
+
         function updateRollingText(element, nextStr) {
             const currentStr = element.getAttribute('data-value') || "";
             if (currentStr === nextStr) return;
@@ -235,13 +241,10 @@
                             String(seconds).padStart(2,'0');
             const dateStr = n.toLocaleDateString();
 
-            // Проверка для ежечасного боя
             if (minutes === 0 && seconds === 0 && hours !== lastChimedHour) {
-                audioChime.currentTime = 0;
-                audioChime.play().catch(e => console.log("Audio play blocked until user interaction"));
+                playSound(audioChime);
                 lastChimedHour = hours;
             } else if (minutes !== 0) {
-                // Сбрасываем метку, когда минута прошла
                 lastChimedHour = -1; 
             }
 
@@ -340,12 +343,13 @@
                 resetBtn.style.background='rgba(255,255,255,0.03)';
                 resetBtn.style.borderColor='#444';
                 resetBtn.classList.remove('shake');
-                audioReset.currentTime = 0;
-                audioReset.play();
+                
+                playSound(audioReset);
+
                 const boom = document.createElement('img');
                 boom.className = 'explosion-effect';
                 boom.src = './index_files/explosion-boom.gif?t=' + Date.now();
-                const rect = counter.getBoundingClientRect();         
+                const rect = counter.getBoundingClientRect();          
                 boom.style.width = (rect.width + 120) + 'px';
                 boom.style.left = (rect.left + rect.width / 2) + 'px';
                 boom.style.top = (rect.top + rect.height / 2) + 'px';
