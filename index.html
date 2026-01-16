@@ -17,34 +17,16 @@
             user-select: none;
         }
 
-        #bg-dots {
+        #bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 0; 
-            opacity: 0; 
+            z-index: 0;
+            opacity: 0;
             transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
-            background: linear-gradient(45deg, #440000, #442200, #444400, #004400, #000044, #220044, #330044);
-            background-size: 400% 400%;
-            -webkit-mask-image: radial-gradient(circle, white 3px, transparent 3px);
-            mask-image: radial-gradient(circle, white 3px, transparent 3px);
-            -webkit-mask-size: 60px 60px;
-            mask-size: 60px 60px;
-            animation: diagonal-move 8s linear infinite, rainbow-shift 12s ease infinite;
-        }
-
-        @keyframes diagonal-move {
-            from { -webkit-mask-position: 0 0; mask-position: 0 0; }
-            to { -webkit-mask-position: 60px 60px; mask-position: 60px 60px; }
-        }
-
-        @keyframes rainbow-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
         
         .hue-anim { animation: hue-rotate 5s linear infinite; filter: hue-rotate(0deg); }
@@ -113,7 +95,7 @@
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(3px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(3px) saturate(200%);
             padding: 14px 18px;
             border-radius: 20px;
             display: flex;
@@ -206,7 +188,7 @@
     </style>
 </head>
 <body>
-    <div id="bg-dots"></div>
+    <canvas id="bg-canvas"></canvas>
 
     <img id="slime" src="./index_files/stupid slime image.png" alt="stupid slime" aria-pressed="false" draggable="false">
     
@@ -240,6 +222,62 @@
             clone.play().catch(e => {});
             clone.onended = () => clone.remove();
         }
+
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let mouse = { x: -2000, y: -2000, active: false };
+        let offset = 0;
+        const spacing = 45; 
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            offset += 0.4;
+            const time = Date.now() / 50;
+
+            const startX = -spacing;
+            const startY = -spacing;
+            const endX = canvas.width + spacing;
+            const endY = canvas.height + spacing;
+
+            for (let x = startX; x < endX; x += spacing) {
+                for (let y = startY; y < endY; y += spacing) {
+                    let posX = x + (offset % spacing);
+                    let posY = y + (offset % spacing);
+
+                    let drawX = posX;
+                    let drawY = posY;
+
+                    if (mouse.active) {
+                        const dx = mouse.x - posX;
+                        const dy = mouse.y - posY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const maxDist = 150;
+
+                        if (dist < maxDist) {
+                            const force = (maxDist - dist) / maxDist;
+                            drawX += dx * force * 0.15;
+                            drawY += dy * force * 0.15;
+                        }
+                    }
+
+                    const hue = (time + (x + y) * 0.1) % 360;
+                    ctx.fillStyle = `hsla(${hue}, 60%, 15%, 0.8)`;
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animate();
 
         function updateRollingText(element, nextStr) {
             const currentStr = element.getAttribute('data-value') || "";
@@ -323,7 +361,7 @@
         const followToggle=document.getElementById('follow');
         const hueToggle=document.getElementById('hue-toggle');
         const bgToggle=document.getElementById('bg-toggle');
-        const bgDots=document.getElementById('bg-dots');
+        const bgCanvas=document.getElementById('bg-canvas');
         const closeBtn=document.getElementById('close');
         const textContainer = document.getElementById('text-container');
 
@@ -358,7 +396,7 @@
                 activated=true; 
                 counter.style.opacity=1; 
                 playSound(audioIn);
-                if(!bgOff) bgDots.style.opacity = "1";
+                if(!bgOff) bgCanvas.style.opacity = "1";
             }
             if(!menu.classList.contains('show')) {
                 menu.classList.add('show');
@@ -447,8 +485,8 @@
         bgToggle.addEventListener('change',()=>{
             bgOff=bgToggle.checked;
             localStorage.setItem('bgOff', bgOff);
-            if(bgOff) bgDots.style.opacity = "0";
-            else if(activated) bgDots.style.opacity = "1";
+            if(bgOff) bgCanvas.style.opacity = "0";
+            else if(activated) bgCanvas.style.opacity = "1";
         });
 
         closeBtn.addEventListener('mousedown',()=>{ closeBtn.style.background='#ffff55'; closeBtn.style.color='black'; });
@@ -457,10 +495,17 @@
         closeBtn.addEventListener('click',()=>{ menu.classList.remove('show'); playSound(audioOut); });
 
         document.addEventListener('mousemove',e=>{
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            mouse.active = true;
             if(!followCursor) return;
             lastX = (e.clientX/window.innerWidth-0.5)*50;
             lastY = (e.clientY/window.innerHeight-0.5)*50;
             applyTransform(lastX, lastY);
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouse.active = false;
         });
 
         updateCounter();
