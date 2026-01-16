@@ -16,6 +16,36 @@
             margin:0;
             user-select: none;
         }
+
+        #bg-dots {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0; 
+            opacity: 0; 
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            background: linear-gradient(45deg, #440000, #442200, #444400, #004400, #000044, #220044, #330044);
+            background-size: 400% 400%;
+            -webkit-mask-image: radial-gradient(circle, white 3px, transparent 3px);
+            mask-image: radial-gradient(circle, white 3px, transparent 3px);
+            -webkit-mask-size: 60px 60px;
+            mask-size: 60px 60px;
+            animation: diagonal-move 8s linear infinite, rainbow-shift 12s ease infinite;
+        }
+
+        @keyframes diagonal-move {
+            from { -webkit-mask-position: 0 0; mask-position: 0 0; }
+            to { -webkit-mask-position: 60px 60px; mask-position: 60px 60px; }
+        }
+
+        @keyframes rainbow-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         
         .hue-anim { animation: hue-rotate 5s linear infinite; filter: hue-rotate(0deg); }
         @keyframes hue-rotate { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
@@ -30,6 +60,8 @@
             transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             user-select: none;
             transform: translateY(-45px) scale(1);
+            position: relative;
+            z-index: 1;
         }
 
         #text-container {
@@ -42,23 +74,11 @@
             justify-content: center;
             pointer-events: none;
             padding: 10px; 
+            z-index: 1;
         }
 
-        #date {
-            font-size: 2rem;
-            font-weight: 500;
-            color: white;
-            margin: 0;
-            line-height: 1.2;
-            display: flex;
-        }
-        #clock {
-            font-size: 4rem;
-            font-weight: 600;
-            margin: 0;
-            line-height: 1.2;
-            display: flex;
-        }
+        #date { font-size: 2rem; font-weight: 500; color: white; margin: 0; line-height: 1.2; display: flex; }
+        #clock { font-size: 4rem; font-weight: 600; margin: 0; line-height: 1.2; display: flex; pointer-events: auto; }
         #counter {
             font-size: 2.5rem;
             font-weight: 600;
@@ -71,13 +91,7 @@
             position: relative;
         }
         
-        .digit-container {
-            position: relative;
-            display: inline-block;
-            height: 1em;
-            width: 0.6em; 
-            text-align: center;
-        }
+        .digit-container { position: relative; display: inline-block; height: 1em; width: 0.6em; text-align: center; }
         .sep { width: 0.25em; }
 
         .digit {
@@ -94,11 +108,12 @@
 
         #menu {
             position: fixed;
-            bottom: -120px;
+            bottom: -150px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(3px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
             padding: 14px 18px;
             border-radius: 20px;
             display: flex;
@@ -106,13 +121,13 @@
             align-items: stretch;
             transition: bottom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.5s ease;
             opacity:0;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 10000;
         }
         #menu.show { bottom:30px; opacity:1; }
 
         #menu button, #menu label {
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.05);
             color: white;
             border-radius: 12px;
             padding: 8px 16px;
@@ -122,26 +137,24 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            border: 1px solid #444;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s ease;
             box-sizing: border-box;
             height: 42px;
         }
         #menu button:hover, #menu label:hover {
             transform: translateY(-2px);
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.12);
             border-color: white;
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
         }
 
-        #menu #reset:hover { border-color: #ff5a52 !important; box-shadow: 0 0 15px rgba(255, 90, 82, 0.4) !important; }
+        #menu #reset:hover { border-color: #ff5a52 !important; box-shadow: 0 0 15px rgba(255, 90, 82, 0.3) !important; }
         #menu #reset:active { background: #ff5a52 !important; color: black !important; }
-
-        #menu #spotify-btn:hover, #menu #spotify-btn.active-widget { border-color: #25d865 !important; box-shadow: 0 0 15px rgba(37, 216, 101, 0.4) !important; }
+        #menu #spotify-btn:hover, #menu #spotify-btn.active-widget { border-color: #25d865 !important; box-shadow: 0 0 15px rgba(37, 216, 101, 0.3) !important; }
         #menu #spotify-btn:active, #menu #spotify-btn.active-widget { background: #25d865 !important; }
         #menu #spotify-btn:active img, #menu #spotify-btn.active-widget img { filter: brightness(0); }
-
-        #menu #close:hover { border-color: #e7c039 !important; box-shadow: 0 0 15px rgba(231, 192, 57, 0.4) !important; }
+        #menu #close:hover { border-color: #e7c039 !important; box-shadow: 0 0 15px rgba(231, 192, 57, 0.3) !important; }
         #menu button:active, #menu label:active { transform: translateY(1px) scale(0.95); }
         #menu input { accent-color: white; margin-left:8px; cursor: pointer; }
 
@@ -166,6 +179,7 @@
             font-weight:600;
             animation: plusone-move 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
             pointer-events:none;
+            z-index: 2;
         }
         @keyframes plusone-move {
             0% { transform: translate(-50%, 10px) scale(0.5); opacity:0; }
@@ -192,12 +206,14 @@
     </style>
 </head>
 <body>
-    <img id="slime" src="./index_files/stupid slime image.png" alt="stupid slime" aria-pressed="false" draggable="false" title="click to interact">
+    <div id="bg-dots"></div>
+
+    <img id="slime" src="./index_files/stupid slime image.png" alt="stupid slime" aria-pressed="false" draggable="false">
     
     <div id="text-container">
-        <div id="date" title="your system date"></div>
-        <div id="clock" title="your system time"></div>
-        <div id="counter" title="click count"></div>
+        <div id="date"></div>
+        <div id="clock"></div>
+        <div id="counter"></div>
     </div>
 
     <div id="spotify-widget">
@@ -205,11 +221,12 @@
     </div>
 
     <div id="menu">
-        <button id="reset" title="resets the count">⟲</button>
-        <label title="makes the image slightly follow the cursor">follow cursor?<input type="checkbox" id="follow"></label>
-        <label title="disables hue changing animation">disable hue?<input type="checkbox" id="hue-toggle"></label>
-        <button id="spotify-btn" title="opens a spotify widget with my playlist"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
-        <button id="close" title="closes this menu">✕</button>
+        <button id="reset">⟲</button>
+        <label>follow cursor?<input type="checkbox" id="follow"></label>
+        <label>disable hue?<input type="checkbox" id="hue-toggle"></label>
+        <label>disable bg?<input type="checkbox" id="bg-toggle"></label>
+        <button id="spotify-btn"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
+        <button id="close">✕</button>
     </div>
 
     <script>
@@ -220,7 +237,7 @@
 
         function playSound(audioNode) {
             const clone = audioNode.cloneNode();
-            clone.play().catch(e => console.log("Audio play blocked"));
+            clone.play().catch(e => {});
             clone.onended = () => clone.remove();
         }
 
@@ -260,27 +277,40 @@
         }
 
         let lastChimedHour = new Date().getHours();
+        
+        function getTimeZoneString() {
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const now = new Date();
+            const offsetMinutes = -now.getTimezoneOffset();
+            const hours = Math.floor(Math.abs(offsetMinutes) / 60);
+            const minutes = Math.abs(offsetMinutes) % 60;
+            const sign = offsetMinutes >= 0 ? "+" : "-";
+            const utcString = `utc${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
+            return `${timeZone}, ${utcString}`.toLowerCase();
+        }
+        
+        const fullTimeZoneInfo = getTimeZoneString();
 
         function updateClock(){
             const n=new Date();
             const hours = n.getHours();
             const minutes = n.getMinutes();
             const seconds = n.getSeconds();
-
-            const timeStr = String(hours).padStart(2,'0')+':'+
-                            String(minutes).padStart(2,'0')+':'+
-                            String(seconds).padStart(2,'0');
+            const timeStr = String(hours).padStart(2,'0')+':'+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0');
             const dateStr = n.toLocaleDateString();
 
             if (minutes === 0 && seconds === 0 && hours !== lastChimedHour) {
                 playSound(audioChime);
                 lastChimedHour = hours;
-            } else if (minutes !== 0) {
-                lastChimedHour = -1; 
-            }
+            } else if (minutes !== 0) { lastChimedHour = -1; }
 
-            updateRollingText(document.getElementById('clock'), timeStr);
+            const clockEl = document.getElementById('clock');
+            updateRollingText(clockEl, timeStr);
             updateRollingText(document.getElementById('date'), dateStr);
+            
+            if (clockEl.title !== fullTimeZoneInfo) {
+                clockEl.title = fullTimeZoneInfo;
+            }
         }
         setInterval(updateClock,1000); updateClock();
 
@@ -292,6 +322,8 @@
         const spotifyWidget=document.getElementById('spotify-widget');
         const followToggle=document.getElementById('follow');
         const hueToggle=document.getElementById('hue-toggle');
+        const bgToggle=document.getElementById('bg-toggle');
+        const bgDots=document.getElementById('bg-dots');
         const closeBtn=document.getElementById('close');
         const textContainer = document.getElementById('text-container');
 
@@ -299,6 +331,7 @@
         let activated=false;
         let followCursor=localStorage.getItem('followCursor')=== 'true';
         let hueOff=localStorage.getItem('hueOff')=== 'true';
+        let bgOff=localStorage.getItem('bgOff')=== 'true';
         let resetPending=false;
         let resetTimeout=null;
         let isSlimeDown = false;
@@ -306,6 +339,7 @@
 
         followToggle.checked=followCursor;
         hueToggle.checked=hueOff;
+        bgToggle.checked=bgOff;
         if(hueOff) img.classList.remove('hue-anim');
 
         function updateCounter() {
@@ -324,6 +358,7 @@
                 activated=true; 
                 counter.style.opacity=1; 
                 playSound(audioIn);
+                if(!bgOff) bgDots.style.opacity = "1";
             }
             if(!menu.classList.contains('show')) {
                 menu.classList.add('show');
@@ -338,15 +373,8 @@
         window.addEventListener('resize', positionTextContainer);
         setTimeout(positionTextContainer, 100);
 
-        img.addEventListener('mousedown', () => { 
-            isSlimeDown = true;
-            applyTransform(lastX, lastY);
-        });
-
-        window.addEventListener('mouseup', () => { 
-            isSlimeDown = false;
-            applyTransform(lastX, lastY);
-        });
+        img.addEventListener('mousedown', () => { isSlimeDown = true; applyTransform(lastX, lastY); });
+        window.addEventListener('mouseup', () => { isSlimeDown = false; applyTransform(lastX, lastY); });
 
         img.addEventListener('click',e=>{
             showUI();
@@ -372,23 +400,19 @@
                 resetBtn.classList.add('shake');
                 resetTimeout = setTimeout(()=>{
                     resetPending=false;
-                    resetBtn.style.background='rgba(255,255,255,0.03)';
-                    resetBtn.style.borderColor='#444';
+                    resetBtn.style.background='rgba(255, 255, 255, 0.03)';
+                    resetBtn.style.borderColor='rgba(255, 255, 255, 0.08)';
                     resetBtn.style.color='white';
                     resetBtn.classList.remove('shake');
                 }, 3000);
             } else {
-                clicks=0;
-                updateCounter();
-                resetPending=false;
+                clicks=0; updateCounter(); resetPending=false;
                 clearTimeout(resetTimeout);
-                resetBtn.style.background='rgba(255,255,255,0.03)';
-                resetBtn.style.borderColor='#444';
+                resetBtn.style.background='rgba(255, 255, 255, 0.03)';
+                resetBtn.style.borderColor='rgba(255, 255, 255, 0.08)';
                 resetBtn.style.color='white';
                 resetBtn.classList.remove('shake');
-                
                 playSound(audioReset);
-
                 const boom = document.createElement('img');
                 boom.className = 'explosion-effect';
                 boom.src = './index_files/explosion-boom.gif?t=' + Date.now();
@@ -407,24 +431,10 @@
             playSound(isOpen ? audioIn : audioOut);
         });
 
-        document.addEventListener('click',()=>{
-            if(resetPending){
-                resetPending=false;
-                clearTimeout(resetTimeout);
-                resetBtn.style.background='rgba(255,255,255,0.03)';
-                resetBtn.style.borderColor='#444';
-                resetBtn.style.color='white';
-                resetBtn.classList.remove('shake');
-            }
-        });
-
         followToggle.addEventListener('change',()=>{
             followCursor=followToggle.checked;
             localStorage.setItem('followCursor', followCursor);
-            if(!followCursor) {
-                lastX = 0; lastY = 0;
-                applyTransform();
-            }
+            if(!followCursor) { lastX = 0; lastY = 0; applyTransform(); }
         });
 
         hueToggle.addEventListener('change',()=>{
@@ -434,26 +444,23 @@
             else if(activated) img.classList.add('hue-anim');
         });
 
-        closeBtn.addEventListener('mousedown',()=>{ closeBtn.style.background='#ffff55'; closeBtn.style.color='black'; });
-        closeBtn.addEventListener('mouseup',()=> { closeBtn.style.background='rgba(255,255,255,0.1)'; closeBtn.style.color='white'; });
-        closeBtn.addEventListener('mouseleave',()=>{ closeBtn.style.background='rgba(255,255,255,0.03)'; closeBtn.style.color='white'; });
-        closeBtn.addEventListener('click',()=>{ 
-            menu.classList.remove('show'); 
-            playSound(audioOut);
+        bgToggle.addEventListener('change',()=>{
+            bgOff=bgToggle.checked;
+            localStorage.setItem('bgOff', bgOff);
+            if(bgOff) bgDots.style.opacity = "0";
+            else if(activated) bgDots.style.opacity = "1";
         });
+
+        closeBtn.addEventListener('mousedown',()=>{ closeBtn.style.background='#ffff55'; closeBtn.style.color='black'; });
+        closeBtn.addEventListener('mouseup',()=> { closeBtn.style.background='rgba(255, 255, 255, 0.1)'; closeBtn.style.color='white'; });
+        closeBtn.addEventListener('mouseleave',()=>{ closeBtn.style.background='rgba(255, 255, 255, 0.03)'; closeBtn.style.color='white'; });
+        closeBtn.addEventListener('click',()=>{ menu.classList.remove('show'); playSound(audioOut); });
 
         document.addEventListener('mousemove',e=>{
             if(!followCursor) return;
             lastX = (e.clientX/window.innerWidth-0.5)*50;
             lastY = (e.clientY/window.innerHeight-0.5)*50;
             applyTransform(lastX, lastY);
-        });
-
-        document.addEventListener('mouseleave',()=>{ 
-            if(followCursor) {
-                lastX = 0; lastY = 0;
-                applyTransform(); 
-            }
         });
 
         updateCounter();
