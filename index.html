@@ -103,10 +103,11 @@
             border-radius: 20px;
             display: flex;
             gap: 14px;
-            align-items: center;
+            align-items: stretch;
             transition: bottom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.5s ease;
             opacity:0;
             border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10000;
         }
         #menu.show { bottom:30px; opacity:1; }
 
@@ -123,6 +124,8 @@
             position: relative;
             border: 1px solid #444;
             transition: all 0.3s ease;
+            box-sizing: border-box;
+            height: 42px;
         }
         #menu button:hover, #menu label:hover {
             transform: translateY(-2px);
@@ -130,10 +133,31 @@
             border-color: white;
             box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
         }
+
         #menu #reset:hover { border-color: #ff5a52 !important; box-shadow: 0 0 15px rgba(255, 90, 82, 0.4) !important; }
+        #menu #reset:active { background: #ff5a52 !important; color: black !important; }
+
+        #menu #spotify-btn:hover, #menu #spotify-btn.active-widget { border-color: #25d865 !important; box-shadow: 0 0 15px rgba(37, 216, 101, 0.4) !important; }
+        #menu #spotify-btn:active, #menu #spotify-btn.active-widget { background: #25d865 !important; }
+        #menu #spotify-btn:active img, #menu #spotify-btn.active-widget img { filter: brightness(0); }
+
         #menu #close:hover { border-color: #e7c039 !important; box-shadow: 0 0 15px rgba(231, 192, 57, 0.4) !important; }
         #menu button:active, #menu label:active { transform: translateY(1px) scale(0.95); }
         #menu input { accent-color: white; margin-left:8px; cursor: pointer; }
+
+        #spotify-widget {
+            position: fixed;
+            top: 20px;
+            bottom: 20px;
+            right: 20px;
+            width: 360px;
+            z-index: 9000;
+            border-radius: 12px;
+            transform: translateX(150%);
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        #spotify-widget.open { transform: translateX(0); }
+        #spotify-widget iframe { height: 100% !important; border-radius: 12px; border: none; }
 
         .plusone {
             position:absolute;
@@ -176,10 +200,15 @@
         <div id="counter" title="click count"></div>
     </div>
 
+    <div id="spotify-widget">
+        <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/3asgwqsGTaQSBWGAISKnu0?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+
     <div id="menu">
         <button id="reset" title="resets the count">⟲</button>
         <label title="makes the image slightly follow the cursor">follow cursor?<input type="checkbox" id="follow"></label>
         <label title="disables hue changing animation">disable hue?<input type="checkbox" id="hue-toggle"></label>
+        <button id="spotify-btn" title="opens a spotify widget with my playlist"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
         <button id="close" title="closes this menu">✕</button>
     </div>
 
@@ -257,6 +286,8 @@
         const counter=document.getElementById('counter');
         const menu=document.getElementById('menu');
         const resetBtn=document.getElementById('reset');
+        const spotifyBtn=document.getElementById('spotify-btn');
+        const spotifyWidget=document.getElementById('spotify-widget');
         const followToggle=document.getElementById('follow');
         const hueToggle=document.getElementById('hue-toggle');
         const closeBtn=document.getElementById('close');
@@ -328,11 +359,13 @@
                 resetPending=true;
                 resetBtn.style.background='#ff5a52';
                 resetBtn.style.borderColor='#ff5a52';
+                resetBtn.style.color='black';
                 resetBtn.classList.add('shake');
                 resetTimeout = setTimeout(()=>{
                     resetPending=false;
                     resetBtn.style.background='rgba(255,255,255,0.03)';
                     resetBtn.style.borderColor='#444';
+                    resetBtn.style.color='white';
                     resetBtn.classList.remove('shake');
                 }, 3000);
             } else {
@@ -342,6 +375,7 @@
                 clearTimeout(resetTimeout);
                 resetBtn.style.background='rgba(255,255,255,0.03)';
                 resetBtn.style.borderColor='#444';
+                resetBtn.style.color='white';
                 resetBtn.classList.remove('shake');
                 
                 playSound(audioReset);
@@ -358,12 +392,18 @@
             }
         });
 
+        spotifyBtn.addEventListener('click', ()=>{
+            const isOpen = spotifyWidget.classList.toggle('open');
+            spotifyBtn.classList.toggle('active-widget', isOpen);
+        });
+
         document.addEventListener('click',()=>{
             if(resetPending){
                 resetPending=false;
                 clearTimeout(resetTimeout);
                 resetBtn.style.background='rgba(255,255,255,0.03)';
                 resetBtn.style.borderColor='#444';
+                resetBtn.style.color='white';
                 resetBtn.classList.remove('shake');
             }
         });
