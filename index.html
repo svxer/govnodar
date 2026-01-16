@@ -215,6 +215,8 @@
     <script>
         const audioReset = new Audio('./index_files/explode.wav');
         const audioChime = new Audio('./index_files/clock_chime.mp3');
+        const audioIn = new Audio('./index_files/ui-in.ogg');
+        const audioOut = new Audio('./index_files/ui-out.ogg');
 
         function playSound(audioNode) {
             const clone = audioNode.cloneNode();
@@ -318,8 +320,15 @@
         }
 
         function showUI(){
-            if(!activated){ activated=true; counter.style.opacity=1; }
-            menu.classList.add('show');
+            if(!activated){ 
+                activated=true; 
+                counter.style.opacity=1; 
+                playSound(audioIn);
+            }
+            if(!menu.classList.contains('show')) {
+                menu.classList.add('show');
+                if(activated && clicks > 0) playSound(audioIn); 
+            }
         }
 
         function positionTextContainer(){
@@ -395,6 +404,7 @@
         spotifyBtn.addEventListener('click', ()=>{
             const isOpen = spotifyWidget.classList.toggle('open');
             spotifyBtn.classList.toggle('active-widget', isOpen);
+            playSound(isOpen ? audioIn : audioOut);
         });
 
         document.addEventListener('click',()=>{
@@ -427,7 +437,10 @@
         closeBtn.addEventListener('mousedown',()=>{ closeBtn.style.background='#ffff55'; closeBtn.style.color='black'; });
         closeBtn.addEventListener('mouseup',()=> { closeBtn.style.background='rgba(255,255,255,0.1)'; closeBtn.style.color='white'; });
         closeBtn.addEventListener('mouseleave',()=>{ closeBtn.style.background='rgba(255,255,255,0.03)'; closeBtn.style.color='white'; });
-        closeBtn.addEventListener('click',()=>{ menu.classList.remove('show'); });
+        closeBtn.addEventListener('click',()=>{ 
+            menu.classList.remove('show'); 
+            playSound(audioOut);
+        });
 
         document.addEventListener('mousemove',e=>{
             if(!followCursor) return;
