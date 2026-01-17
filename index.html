@@ -79,7 +79,7 @@
             pointer-events: none;
             padding: 10px; 
             z-index: 1;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease, top 0.3s ease-out;
         }
 
         #date { font-size: 2rem; font-weight: 500; color: white; margin: 0; line-height: 1.2; display: flex; pointer-events: auto; }
@@ -355,18 +355,18 @@
                         const dx = mouse.x - posX;
                         const dy = mouse.y - posY;
                         const dist = Math.sqrt(dx * dx + dy * dy);
-                        const maxDist = 150;
+                        const maxDist = 180;
                         if (dist < maxDist) {
                             const force = (maxDist - dist) / maxDist;
-                            drawX += dx * force * 0.15;
-                            drawY += dy * force * 0.15;
+                            drawX += dx * force * 0.25;
+                            drawY += dy * force * 0.25;
                         }
                     }
 
                     const hue = (time + (x + y) * 0.1) % 360;
                     ctx.fillStyle = `hsla(${hue}, 60%, 15%, 0.8)`;
                     ctx.beginPath();
-                    ctx.arc(drawX, drawY, 2.5, 0, Math.PI * 2);
+                    ctx.arc(drawX, drawY, 4.5, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
@@ -522,10 +522,16 @@
 
         function positionTextContainer(){
             const imgRect = img.getBoundingClientRect();
-            textContainer.style.top = (imgRect.bottom - 20) + 'px';
+            const scrollY = window.scrollY || document.documentElement.scrollTop;
+            textContainer.style.top = (imgRect.bottom + scrollY - 20) + 'px';
         }
-        window.addEventListener('resize', positionTextContainer);
-        setTimeout(positionTextContainer, 100);
+        
+        window.addEventListener('resize', () => {
+            positionTextContainer();
+            setTimeout(positionTextContainer, 50);
+        });
+        
+        img.onload = positionTextContainer;
 
         function spawnEffect(e, isTen) {
             const plus = document.createElement('div');
@@ -610,7 +616,7 @@
                 const boom = document.createElement('img');
                 boom.className = 'explosion-effect';
                 boom.src = './index_files/explosion-boom.gif?t=' + Date.now();
-                const rect = counter.getBoundingClientRect();          
+                const rect = counter.getBoundingClientRect();          
                 boom.style.width = (rect.width + 120) + 'px';
                 boom.style.left = (rect.left + rect.width / 2) + 'px';
                 boom.style.top = (rect.top + rect.height / 2) + 'px';
@@ -725,7 +731,10 @@
         }
 
         updateCounterDisplay();
-        positionTextContainer();
+        window.addEventListener('load', () => {
+            positionTextContainer();
+            setTimeout(positionTextContainer, 200);
+        });
     </script>
 </body>
 </html>
