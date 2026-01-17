@@ -48,9 +48,24 @@
             height: 100%;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 2s ease;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 0.8s ease-out;
             user-select: none;
             transform: translateY(-45px) scale(1);
+        }
+
+        #slime.blocked {
+            filter: brightness(0.7) !important;
+            cursor: default;
+        }
+
+        .nod-ready {
+            animation: nod-anim 0.35s cubic-bezier(0.25, 0.46, 0.45, 1.4);
+        }
+
+        @keyframes nod-anim {
+            0% { transform: translateY(-45px); }
+            40% { transform: translateY(-75px); }
+            100% { transform: translateY(-45px); }
         }
 
         #text-container {
@@ -75,11 +90,17 @@
             color: white;
             margin: 5px 0 0 0;
             opacity: 0;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.8s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             line-height: 1;
             display: flex;
             position: relative;
             pointer-events: auto;
+            transform: scale(1);
+        }
+
+        #counter.combo {
+            transform: scale(1.25);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
         }
         
         .digit-container { position: relative; display: inline-block; height: 1em; width: 0.6em; text-align: center; }
@@ -140,7 +161,7 @@
             box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
         }
 
-        #menu #reset { background: rgba(255, 255, 255, 0.05); } /* Fixed transparency */
+        #menu #reset { background: rgba(255, 255, 255, 0.05); }
         #menu #reset:hover { border-color: #ff5a52 !important; box-shadow: 0 0 15px rgba(255, 90, 82, 0.3) !important; }
         #menu #reset:active { background: #ff5a52 !important; color: black !important; }
         #menu #spotify-btn:hover, #menu #spotify-btn.active-widget { border-color: #25d865 !important; box-shadow: 0 0 15px rgba(37, 216, 101, 0.3) !important; }
@@ -445,21 +466,42 @@
         let lastX = 0, lastY = 0;
         let isBWMode = false;
         let isBWLocked = false;
+        let isSlimeBlocked = false;
         let isDraggingHammer = false;
         let hammerProgress = 0;
+        let comboTimeout = null;
 
         followToggle.checked=followCursor;
         hueToggle.checked=hueOff;
         bgToggle.checked=bgOff;
         if(hueOff) img.classList.remove('hue-anim');
 
-        function updateCounter() {
+        function bumpCounter() {
+            counter.classList.add('combo');
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => {
+                counter.classList.remove('combo');
+            }, 800);
+        }
+
+        function updateCounterDisplay() {
             updateRollingText(counter, String(clicks));
             localStorage.setItem('slimeClicks', clicks);
+            bumpCounter();
+        }
+
+        function animateCounterIncrement(amount) {
+            let current = 0;
+            const interval = setInterval(() => {
+                clicks++;
+                updateCounterDisplay();
+                current++;
+                if (current >= amount) clearInterval(interval);
+            }, 120); 
         }
 
         function applyTransform(x = 0, y = 0) {
-            if(isBWMode) return;
+            if(isBWMode || isSlimeBlocked) return;
             const scale = isSlimeDown ? 0.92 : 1;
             const translateY = -45 + y;
             img.style.transform = `translateY(${translateY}px) translateX(${x}px) scale(${scale})`;
@@ -496,19 +538,33 @@
             document.body.appendChild(plus);
             plus.style.left = e.clientX + 'px';
             plus.style.top = (e.clientY - 20) + 'px';
+            
+            if (isTen) {
+                setTimeout(() => animateCounterIncrement(10), 500);
+            }
+            
             setTimeout(() => plus.remove(), isTen ? 2100 : 800);
         }
 
         body.addEventListener('mousedown', e => {
             if(isBWMode) {
                 if(isBWLocked) return;
+                isSlimeBlocked = true;
+                img.classList.add('blocked');
+                img.style.transform = 'translateY(-45px) translateX(0px) scale(1)';
                 exitBWMode();
-                clicks += 10;
-                updateCounter();
                 spawnEffect(e, true);
+                
+                setTimeout(() => { 
+                    isSlimeBlocked = false; 
+                    img.classList.remove('blocked');
+                    img.classList.add('nod-ready');
+                    setTimeout(() => img.classList.remove('nod-ready'), 350);
+                    applyTransform();
+                }, 800);
                 return;
             }
-            if(e.target === img && !isDraggingHammer) {
+            if(e.target === img && !isDraggingHammer && !isSlimeBlocked) {
                 isSlimeDown = true; 
                 applyTransform(lastX, lastY);
             }
@@ -520,10 +576,10 @@
         });
 
         img.addEventListener('click', e => {
-            if(isBWMode) return;
+            if(isBWMode || isSlimeBlocked) return;
             showUI();
             clicks++;
-            updateCounter();
+            updateCounterDisplay();
             spawnEffect(e, false);
             if(!hueOff) img.classList.add('hue-anim');
         });
@@ -544,7 +600,7 @@
                     resetBtn.classList.remove('shake');
                 }, 3000);
             } else {
-                clicks=0; updateCounter(); resetPending=false;
+                clicks=0; updateCounterDisplay(); resetPending=false;
                 clearTimeout(resetTimeout);
                 resetBtn.style.background='rgba(255, 255, 255, 0.05)';
                 resetBtn.style.borderColor='rgba(255, 255, 255, 0.08)';
@@ -600,7 +656,7 @@
                 hammer.style.top = (e.clientY - 30) + 'px';
                 hammer.style.bottom = 'auto';
             }
-            if(!followCursor || isBWMode) return;
+            if(!followCursor || isBWMode || isSlimeBlocked) return;
             lastX = (e.clientX/window.innerWidth-0.5)*50;
             lastY = (e.clientY/window.innerHeight-0.5)*50;
             applyTransform(lastX, lastY);
@@ -647,7 +703,6 @@
             img.classList.remove('hue-anim');
             img.style.filter = 'grayscale(1) brightness(0)';
             
-            // Lock interaction until fade in is mostly done
             setTimeout(() => {
                 img.classList.add('faded');
             }, 50);
@@ -669,7 +724,7 @@
             }, 50);
         }
 
-        updateCounter();
+        updateCounterDisplay();
         positionTextContainer();
     </script>
 </body>
