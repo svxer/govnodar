@@ -2,4 +2,4 @@
 https://www.govnodar.ru
 
 
-![readme](github/readme-image.webp)
+![readme](.github/readme-image.webp)
