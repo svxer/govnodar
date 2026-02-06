@@ -144,6 +144,7 @@
             border-radius: 12px;
             padding: 8px 16px;
             font-size: 0.9rem;
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -167,6 +168,9 @@
         #menu #spotify-btn:hover, #menu #spotify-btn.active-widget { border-color: #25d865 !important; box-shadow: 0 0 15px rgba(37, 216, 101, 0.3) !important; }
         #menu #spotify-btn:active, #menu #spotify-btn.active-widget { background: #25d865 !important; }
         #menu #spotify-btn:active img, #menu #spotify-btn.active-widget img { filter: brightness(0); }
+        #menu #pages-btn:hover, #menu #pages-btn.active-widget { border-color: #7aa3ff !important; box-shadow: 0 0 15px rgba(122, 163, 255, 0.3) !important; }
+        #menu #pages-btn:active, #menu #pages-btn.active-widget { background: #7aa3ff !important; }
+        #menu #pages-btn:active img, #menu #pages-btn.active-widget img { filter: brightness(0); }
         #menu #close:hover { border-color: #e7c039 !important; box-shadow: 0 0 15px rgba(231, 192, 57, 0.3) !important; }
         #menu #close:active { background: #e7c039 !important; color: black !important; }
         #menu button:active, #menu label:active { transform: translateY(1px) scale(0.95); }
@@ -185,6 +189,94 @@
         }
         #spotify-widget.open { transform: translateX(0); }
         #spotify-widget iframe { height: 100% !important; border-radius: 12px; border: none; }
+
+        #pages-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+        }
+        #pages-menu.open { opacity: 1; pointer-events: auto; }
+        #pages-card {
+            width: min(92vw, 520px);
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px 18px 16px 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        #pages-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        #pages-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: lowercase;
+        }
+        #pages-close {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: lowercase;
+        }
+        #pages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .pages-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: white;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+            text-transform: lowercase;
+        }
+        .pages-link:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .pages-badge {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            text-transform: lowercase;
+        }
+        .pages-soon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            font-size: 0.95rem;
+            text-transform: lowercase;
+        }
 
         .plusone {
             position:absolute;
@@ -264,6 +356,7 @@
         .bw-mode #menu, 
         .bw-mode #text-container, 
         .bw-mode #spotify-widget, 
+        .bw-mode #pages-menu,
         .bw-mode #hammer {
             transition: none !important;
             opacity: 0 !important;
@@ -302,12 +395,29 @@
         <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/3asgwqsGTaQSBWGAISKnu0?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
 
+    <div id="pages-menu" aria-hidden="true">
+        <div id="pages-card" role="dialog" aria-modal="true" aria-label="other pages">
+            <div id="pages-header">
+                <h2>other pages</h2>
+                <button id="pages-close" title="close pages menu">close</button>
+            </div>
+            <div id="pages-list">
+                <a class="pages-link" href="https://www.govnodar.ru/cookie-stealer" target="_blank" rel="noopener noreferrer">
+                    <span>cookie stealer</span>
+                    <span class="pages-badge">open</span>
+                </a>
+                <div class="pages-soon">more pages coming soon</div>
+            </div>
+        </div>
+    </div>
+
     <div id="menu">
         <button id="reset" title="resets your score">⟲</button>
         <label title="makes the slime slightly follow your cursor">follow cursor?<input type="checkbox" id="follow"></label>
         <label title="disables hue animation of the slime">disable hue?<input type="checkbox" id="hue-toggle"></label>
         <label title="disables dots in the background">disable bg?<input type="checkbox" id="bg-toggle"></label>
         <button id="spotify-btn" title="opens my playlist on spotify"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
+        <button id="pages-btn" title="opens a list of other pages">other pages...</button>
         <button id="close" title="closes this menu, click the slime to open it again">✕</button>
     </div>
 
@@ -446,6 +556,9 @@
         const resetBtn=document.getElementById('reset');
         const spotifyBtn=document.getElementById('spotify-btn');
         const spotifyWidget=document.getElementById('spotify-widget');
+        const pagesBtn=document.getElementById('pages-btn');
+        const pagesMenu=document.getElementById('pages-menu');
+        const pagesClose=document.getElementById('pages-close');
         const followToggle=document.getElementById('follow');
         const hueToggle=document.getElementById('hue-toggle');
         const bgToggle=document.getElementById('bg-toggle');
@@ -629,6 +742,24 @@
             const isOpen = spotifyWidget.classList.toggle('open');
             spotifyBtn.classList.toggle('active-widget', isOpen);
             playSound(isOpen ? audioIn : audioOut);
+        });
+
+        function togglePagesMenu(forceOpen) {
+            const isOpen = typeof forceOpen === 'boolean' ? forceOpen : !pagesMenu.classList.contains('open');
+            pagesMenu.classList.toggle('open', isOpen);
+            pagesMenu.setAttribute('aria-hidden', String(!isOpen));
+            pagesBtn.classList.toggle('active-widget', isOpen);
+            playSound(isOpen ? audioIn : audioOut);
+        }
+
+        pagesBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            togglePagesMenu();
+        });
+
+        pagesClose.addEventListener('click', () => togglePagesMenu(false));
+        pagesMenu.addEventListener('click', (e) => {
+            if (e.target === pagesMenu) togglePagesMenu(false);
         });
 
         followToggle.addEventListener('change',()=>{
