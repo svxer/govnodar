@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>cookie stealer</title>
+<link rel="icon" href="../index_files/stupid slime image.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+  }
+
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hint-text {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    transform: translateX(-50%);
+    color: #444;
+    font-size: 1.8rem;
+    font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 1.5s ease-out;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .hint-text.show {
+    opacity: 1;
+  }
+
+  .hint-text.hide {
+    opacity: 0;
+  }
+
+  .slime {
+    position: absolute;
+    width: 10vw;
+    max-width: 150px;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    animation: approachCookie 4s linear forwards, shakeSlime 0.1s linear 7.5s 5 forwards, escapeWithCookie 0.6s linear 8s forwards;
+    animation-play-state: paused;
+  }
+
+  .cookie {
+    position: absolute;
+    font-size: 3vw;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: stealCookie 2.5s linear 4s forwards, shakeCookie 0.1s linear 7.5s 5 forwards, rideAwayWithSlime 0.6s linear 8s forwards;
+    animation-play-state: paused;
+  }
+
+  @keyframes approachCookie {
+    0% { left: -15%; transform: translateX(-50%) translateY(-50%); }
+    100% { left: 50%; transform: translateX(-50%) translateY(-50%); }
+  }
+
+  @keyframes shakeSlime {
+    0%, 100% { transform: translateX(-50%) translateY(-50%); }
+    50% { transform: translateX(calc(-50% - 15px)) translateY(-50%); }
+  }
+
+  @keyframes shakeCookie {
+    0%, 100% { transform: translateX(-50%) translateY(-180%); }
+    50% { transform: translateX(calc(-50% - 15px)) translateY(-180%); }
+  }
+
+  @keyframes escapeWithCookie {
+    0% { left: 50%; transform: translateX(-50%) translateY(-50%); }
+    100% { left: 110%; transform: translateX(-50%) translateY(-50%); }
+  }
+
+  @keyframes stealCookie {
+    0% { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    50% { left: 50%; top: 50%; transform: translateX(-50%) translateY(-180%); }
+    100% { left: 50%; top: 50%; transform: translateX(-50%) translateY(-180%); }
+  }
+
+  @keyframes rideAwayWithSlime {
+    0% { left: 50%; top: 50%; transform: translateX(-50%) translateY(-180%); }
+    100% { left: 110%; top: 50%; transform: translateX(-50%) translateY(-180%); }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <img src="../index_files/stupid slime image.png" class="slime" alt="slime" />
+  <div class="cookie">🍪</div>
+  <div class="hint-text">click anywhere</div>
+</div>
+
+<audio id="cookieSound" src="../index_files/cookie-get.mp3"></audio>
+<audio id="fleeSound" src="../index_files/flee.mp3"></audio>
+
+<script>
+  let started = false;
+  let hintShown = false;
+
+  const hintText = document.querySelector('.hint-text');
+  const hintTimeout = setTimeout(() => {
+    if (!started) {
+      hintText.classList.add('show');
+      hintShown = true;
+    }
+  }, 3000);
+
+  document.addEventListener('click', () => {
+    if (started) return;
+    started = true;
+
+    clearTimeout(hintTimeout);
+    
+    if (hintShown) {
+      hintText.classList.remove('show');
+      hintText.classList.add('hide');
+    }
+
+    document.querySelector('.slime').style.animationPlayState = 'running';
+    document.querySelector('.cookie').style.animationPlayState = 'running';
+
+    setTimeout(() => {
+      document.getElementById('cookieSound').play().catch(e => console.log('Cookie sound failed:', e));
+    }, 5250);
+
+    setTimeout(() => {
+      document.getElementById('fleeSound').play().catch(e => console.log('Flee sound failed:', e));
+    }, 7500);
+  });
+</script>
+
+</body>
+</html>
