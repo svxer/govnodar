@@ -571,6 +571,9 @@
         const textContainer = document.getElementById('text-container');
         const hammer = document.getElementById('hammer');
         const body = document.getElementById('main-body');
+        const slimeNotifyEndpoint = '/slime-click';
+        const slimeNotifyCooldownMs = 60 * 60 * 1000;
+        const slimeNotifyStorageKey = 'slimeLastNotifyAt';
 
         let clicks=Number(localStorage.getItem('slimeClicks'))||0;
         let activated=false;
@@ -615,6 +618,34 @@
                 current++;
                 if (current >= amount) clearInterval(interval);
             }, 120); 
+        }
+
+        async function notifySlimeClick() {
+            const now = Date.now();
+            const lastNotifyAt = Number(localStorage.getItem(slimeNotifyStorageKey)) || 0;
+
+            if (now - lastNotifyAt < slimeNotifyCooldownMs) return;
+
+            try {
+                const response = await fetch(slimeNotifyEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        language: navigator.language || 'unknown',
+                        screen: `${window.screen.width}x${window.screen.height}`,
+                        page: window.location.href,
+                        userAgent: navigator.userAgent
+                    }),
+                    keepalive: true
+                });
+
+                if (response.ok) {
+                    localStorage.setItem(slimeNotifyStorageKey, String(now));
+                }
+            } catch (error) {}
         }
 
         function applyTransform(x = 0, y = 0) {
@@ -704,6 +735,7 @@
             clicks++;
             updateCounterDisplay();
             spawnEffect(e, false);
+            notifySlimeClick();
             if(!hueOff) img.classList.add('hue-anim');
         });
 
