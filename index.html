@@ -34,12 +34,15 @@
 
         #slime-container {
             position: relative;
+            width: 100%;
             height: 65vh;
             margin-top: 5vh;
             z-index: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            box-sizing: border-box;
+            transition: transform 0.35s ease, margin-top 0.35s ease, padding 0.35s ease;
         }
 
         #slime {
@@ -81,28 +84,97 @@
             pointer-events: none;
             padding: 10px; 
             z-index: 1;
-            transition: opacity 0.5s ease, top 0.3s ease-out;
+            transition: opacity 0.5s ease, top 0.3s ease-out, left 0.35s ease, transform 0.35s ease, padding 0.35s ease;
+            box-sizing: border-box;
         }
 
-        #date { font-size: 2rem; font-weight: 500; color: white; margin: 0; line-height: 1.2; display: flex; pointer-events: auto; }
-        #clock { font-size: 4rem; font-weight: 600; margin: 0; line-height: 1.2; display: flex; pointer-events: auto; }
+        body.split-layout #slime-container {
+            width: 50vw;
+            max-width: 50vw;
+            height: calc(100vh - var(--split-menu-space, 160px));
+            margin-top: 0;
+            justify-content: flex-end;
+            padding-right: clamp(16px, 4vw, 56px);
+            box-sizing: border-box;
+            transform: translateX(clamp(-24px, -2.5vw, -56px));
+        }
+
+        body.split-layout #slime {
+            max-width: min(36vw, 90%);
+            max-height: min(calc(100vh - var(--split-menu-space, 160px) - 24px), 78vh);
+        }
+
+        body.split-layout #text-container {
+            top: 0 !important;
+            bottom: var(--split-menu-space, 160px);
+            left: 50%;
+            right: auto;
+            width: min(34vw, 460px);
+            transform: translateX(clamp(12px, 1.6vw, 28px));
+            align-items: flex-start;
+            text-align: left;
+            justify-content: center;
+            padding: 24px 24px 24px clamp(16px, 3vw, 40px);
+            box-sizing: border-box;
+        }
+
+        body.split-layout #date {
+            font-size: clamp(2.2rem, 2vw, 2.8rem);
+        }
+
+        body.split-layout #clock {
+            font-size: clamp(4.75rem, 5.5vw, 6.5rem);
+        }
+
+        body.split-layout #counter {
+            font-size: clamp(3rem, 3.3vw, 3.9rem);
+        }
+
+        body.compact-stack #slime-container {
+            height: 52vh;
+            margin-top: 3vh;
+        }
+
+        body.compact-stack #slime {
+            max-height: 88%;
+        }
+
+        body.compact-stack #date {
+            font-size: 1.6rem;
+        }
+
+        body.compact-stack #clock {
+            font-size: 3.1rem;
+        }
+
+        body.compact-stack #counter {
+            font-size: 2.15rem;
+        }
+
+        #date { font-size: 2rem; font-weight: 500; color: white; margin: 0; line-height: 1.2; display: flex; pointer-events: auto; transition: font-size 0.35s ease; }
+        #clock { font-size: 4rem; font-weight: 600; margin: 0; line-height: 1.2; display: flex; pointer-events: auto; transition: font-size 0.35s ease, transform 0.35s ease; }
         #counter {
             font-size: 2.5rem;
             font-weight: 600;
             color: white;
             margin: 5px 0 0 0;
             opacity: 0;
-            transition: opacity 0.8s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.8s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), font-size 0.35s ease;
             line-height: 1;
             display: flex;
             position: relative;
             pointer-events: auto;
             transform: scale(1);
+            transform-origin: center;
         }
 
         #counter.combo {
             transform: scale(1.25);
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        body.split-layout #counter {
+            transform-origin: top left;
         }
         
         .digit-container { position: relative; display: inline-block; height: 1em; width: 0.6em; text-align: center; }
@@ -137,6 +209,11 @@
             opacity:0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 10000;
+            width: max-content;
+            max-width: calc(100vw - 24px);
+            flex-wrap: nowrap;
+            justify-content: center;
+            box-sizing: border-box;
         }
         #menu.show { bottom:30px; opacity:1; }
 
@@ -153,7 +230,7 @@
             justify-content: center;
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease;
             box-sizing: border-box;
             height: 42px;
         }
@@ -215,6 +292,7 @@
             border-radius: 18px;
             padding: 18px 18px 16px 18px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
         }
         #pages-header {
             display: flex;
@@ -376,6 +454,92 @@
             transition: filter 2s ease-in-out !important;
             filter: grayscale(1) brightness(0.7) !important;
         }
+
+        @media (max-width: 900px) {
+            #pages-menu {
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            #pages-card {
+                width: min(100%, 520px);
+            }
+
+            #menu.show {
+                bottom: 20px;
+            }
+
+            #menu {
+                width: max-content;
+                max-width: calc(100vw - 40px);
+                padding: 12px;
+                gap: 10px;
+                flex-wrap: nowrap;
+            }
+
+            #menu button,
+            #menu label {
+                flex: 0 1 auto;
+                min-width: 0;
+            }
+        }
+
+        @media (max-width: 700px) {
+            #pages-menu {
+                padding: 16px;
+            }
+
+            #pages-card {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            #menu.show {
+                bottom: 16px;
+            }
+
+            #menu {
+                width: calc(100vw - 32px);
+                max-width: calc(100vw - 32px);
+                padding: 10px;
+                gap: 8px;
+                border-radius: 18px;
+                flex-wrap: wrap;
+            }
+
+            #menu button,
+            #menu label {
+                flex: 1 1 calc(50% - 8px);
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            #menu label,
+            #menu #pages-btn {
+                order: 1;
+            }
+
+            #menu #reset {
+                order: 2;
+            }
+
+            #menu #close {
+                order: 3;
+            }
+
+            #menu #spotify-btn {
+                order: 4;
+            }
+
+            #menu #reset,
+            #menu #close,
+            #menu #spotify-btn {
+                flex: 1 1 calc((100% - 16px) / 3);
+                width: calc((100% - 16px) / 3);
+                padding: 8px;
+                min-width: 0;
+            }
+        }
     </style>
 </head>
 <body id="main-body">
@@ -404,11 +568,11 @@
                 <button id="pages-close" title="close pages menu">close</button>
             </div>
             <div id="pages-list">
-                <a class="pages-link" href="https://www.govnodar.ru/cookie-stealer" target="_blank" rel="noopener noreferrer">
+                <a class="pages-link" href="./cookie-stealer/index.html" target="_blank" rel="noopener noreferrer">
                     <span>cookie stealer</span>
                     <span class="pages-badge">open</span>
                 </a>
-                <a class="pages-link" href="https://www.govnodar.ru/literally-me" target="_blank" rel="noopener noreferrer">
+                <a class="pages-link" href="./literally-me/index.html" target="_blank" rel="noopener noreferrer">
                     <span>literally me</span>
                     <span class="pages-badge">open</span>
                 </a>
@@ -422,8 +586,8 @@
         <label title="makes the slime slightly follow your cursor">follow cursor?<input type="checkbox" id="follow"></label>
         <label title="disables hue animation of the slime">disable hue?<input type="checkbox" id="hue-toggle"></label>
         <label title="disables dots in the background">disable bg?<input type="checkbox" id="bg-toggle"></label>
-        <button id="spotify-btn" title="opens my playlist on spotify"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
         <button id="pages-btn" title="opens a list of other pages">other pages</button>
+        <button id="spotify-btn" title="opens my playlist on spotify"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
         <button id="close" title="closes this menu, click the slime to open it again">✕</button>
     </div>
 
@@ -668,20 +832,54 @@
                 menu.classList.add('show');
                 if(activated && clicks > 0) playSound(audioIn); 
             }
+            updateResponsiveLayout();
         }
 
         function positionTextContainer(){
+            if (body.classList.contains('split-layout')) {
+                textContainer.style.top = '0px';
+                return;
+            }
+
             const imgRect = img.getBoundingClientRect();
             const scrollY = window.scrollY || document.documentElement.scrollTop;
-            textContainer.style.top = (imgRect.bottom + scrollY - 20) + 'px';
+            const naturalTop = imgRect.bottom + scrollY - 20;
+            const menuRect = menu.classList.contains('show') ? menu.getBoundingClientRect() : null;
+            const menuTop = menuRect ? (menuRect.top + scrollY) : Number.POSITIVE_INFINITY;
+            const maxTop = menuTop - textContainer.offsetHeight - 16;
+            textContainer.style.top = naturalTop + 'px';
+        }
+
+        function updateResponsiveLayout() {
+            const menuRect = menu.classList.contains('show') ? menu.getBoundingClientRect() : null;
+            const shouldSplitLayout = window.innerWidth >= 900 && window.innerWidth > window.innerHeight;
+            const splitMenuSpace = menuRect ? Math.max(window.innerHeight - menuRect.top, 120) : 160;
+            body.style.setProperty('--split-menu-space', `${splitMenuSpace}px`);
+            body.classList.toggle('split-layout', shouldSplitLayout);
+            if (!shouldSplitLayout) {
+                body.classList.remove('compact-stack');
+                positionTextContainer();
+                const imgRect = img.getBoundingClientRect();
+                const scrollY = window.scrollY || document.documentElement.scrollTop;
+                const naturalTop = imgRect.bottom + scrollY - 20;
+                const menuTop = menuRect ? (menuRect.top + scrollY) : Number.POSITIVE_INFINITY;
+                const availableSpace = menuTop - naturalTop - 16;
+                body.classList.toggle('compact-stack', availableSpace < textContainer.offsetHeight);
+            } else {
+                body.classList.remove('compact-stack');
+            }
+            positionTextContainer();
         }
         
         window.addEventListener('resize', () => {
+            updateResponsiveLayout();
             positionTextContainer();
-            setTimeout(positionTextContainer, 50);
         });
         
-        img.onload = positionTextContainer;
+        img.onload = () => {
+            updateResponsiveLayout();
+            positionTextContainer();
+        };
 
         function spawnEffect(e, isTen) {
             const plus = document.createElement('div');
@@ -820,7 +1018,11 @@
             else if(activated) bgCanvas.style.opacity = "1";
         });
 
-        closeBtn.addEventListener('click',()=>{ menu.classList.remove('show'); playSound(audioOut); });
+        closeBtn.addEventListener('click',()=>{
+            menu.classList.remove('show');
+            playSound(audioOut);
+            updateResponsiveLayout();
+        });
 
         document.addEventListener('mousemove',e=>{
             mouse.x = e.clientX;
@@ -901,6 +1103,7 @@
 
         updateCounterDisplay();
         window.addEventListener('load', () => {
+            updateResponsiveLayout();
             positionTextContainer();
             setTimeout(positionTextContainer, 200);
         });
