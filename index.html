@@ -648,6 +648,38 @@
         }
         #hammer:active { cursor: grabbing; }
 
+        #bw-scene {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 56px;
+            padding-right: 24px;
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 8500;
+        }
+
+        #bw-slime {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: min(calc(100vw - 80px), 820px);
+            max-height: min(calc(100vh - 48px), 72vh);
+            opacity: 0;
+            filter: grayscale(1) brightness(0);
+            transform: translateY(-45px) scale(1.1);
+            transition: opacity 1.6s ease, filter 2s ease-in-out;
+            user-select: none;
+            pointer-events: auto;
+        }
+
+        #bw-slime.faded-in {
+            opacity: 1;
+            filter: grayscale(1) brightness(0.7);
+        }
+
         .bw-mode #bg-canvas, 
         .bw-mode #menu, 
         .bw-mode #text-container, 
@@ -659,17 +691,14 @@
             opacity: 0 !important;
             pointer-events: none !important;
         }
-        
-        .bw-mode #slime {
-            transition: none !important;
-            filter: grayscale(1) brightness(0) !important;
-            transform: translateX(-25vw) translateY(var(--slime-base-y)) scale(1.1) !important;
-            cursor: pointer !important;
+
+        .bw-mode #slime-container {
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
-        .bw-mode #slime.faded {
-            transition: filter 2s ease-in-out !important;
-            filter: grayscale(1) brightness(0.7) !important;
+        .bw-mode #bw-scene {
+            display: flex;
         }
 
         @media (max-width: 900px) {
@@ -905,7 +934,11 @@
     <div id="slime-container">
         <img id="slime" src="./index_files/stupid slime image.png" alt="stupid slime" aria-pressed="false" draggable="false">
     </div>
-    
+
+    <div id="bw-scene" aria-hidden="true">
+        <img id="bw-slime" src="./index_files/stupid slime image.png" alt="grayscale stupid slime" draggable="false">
+    </div>
+
     <div id="text-container">
         <div id="date" title="Today™"></div>
         <div id="clock"></div>
@@ -1147,6 +1180,8 @@
         setInterval(updateClock,1000); updateClock();
 
         const img=document.getElementById('slime');
+        const bwScene=document.getElementById('bw-scene');
+        const bwSlime=document.getElementById('bw-slime');
         const counter=document.getElementById('counter');
         const menu=document.getElementById('menu');
         const resetBtn=document.getElementById('reset');
@@ -1333,6 +1368,7 @@
             const settingsMenuSafeBottom = menuRect ? Math.max(window.innerHeight - menuRect.top + 12, 28) : 16;
             body.style.setProperty('--split-menu-space', `${splitMenuSpace}px`);
             body.style.setProperty('--settings-menu-safe-bottom', `${settingsMenuSafeBottom}px`);
+            if (isBWMode) return;
             body.classList.toggle('viewport-vertical', window.innerHeight > window.innerWidth);
             body.classList.toggle('split-layout', shouldSplitLayout);
             body.classList.toggle('short-split-layout', shouldUseShortSplitLayout);
@@ -1621,14 +1657,13 @@
         function enterBWMode() {
             isBWMode = true;
             isBWLocked = true;
-            img.classList.remove('faded');
             document.body.classList.add('bw-mode');
             img.classList.remove('hue-anim');
-            img.style.filter = 'grayscale(1) brightness(0)';
-            
-            setTimeout(() => {
-                img.classList.add('faded');
-            }, 50);
+            bwSlime.classList.remove('faded-in');
+            bwScene.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(() => {
+                bwSlime.classList.add('faded-in');
+            });
             setTimeout(() => {
                 isBWLocked = false;
             }, 2000);
@@ -1637,14 +1672,11 @@
         function exitBWMode() {
             isBWMode = false;
             document.body.classList.remove('bw-mode');
-            img.classList.remove('faded');
-            img.style.transition = 'none';
-            img.style.filter = 'none';
+            bwSlime.classList.remove('faded-in');
+            bwScene.setAttribute('aria-hidden', 'true');
             if(!hueOff) img.classList.add('hue-anim');
+            updateResponsiveLayout();
             applyTransform();
-            setTimeout(() => {
-                img.style.transition = '';
-            }, 50);
         }
 
         updateCounterDisplay();
