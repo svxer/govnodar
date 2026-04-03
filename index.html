@@ -15,6 +15,9 @@
             font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
             margin:0;
             user-select: none;
+            --slime-base-y: -45px;
+            --slime-nod-peak-y: -75px;
+            --settings-menu-safe-bottom: 16px;
         }
 
         #bg-canvas {
@@ -42,7 +45,7 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
-            transition: transform 0.35s ease, margin-top 0.35s ease, padding 0.35s ease;
+            transition: width 0.42s ease, max-width 0.42s ease, height 0.42s ease, transform 0.42s ease, margin-top 0.42s ease, padding 0.42s ease;
         }
 
         #slime {
@@ -53,9 +56,9 @@
             max-height: 100%;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 0.8s ease-out;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), max-width 0.42s ease, max-height 0.42s ease, filter 0.8s ease-out;
             user-select: none;
-            transform: translateY(-45px) scale(1);
+            transform: translateY(var(--slime-base-y)) scale(1);
         }
 
         #slime.blocked {
@@ -68,9 +71,9 @@
         }
 
         @keyframes nod-anim {
-            0% { transform: translateY(-45px); }
-            40% { transform: translateY(-75px); }
-            100% { transform: translateY(-45px); }
+            0% { transform: translateY(var(--slime-base-y)); }
+            40% { transform: translateY(var(--slime-nod-peak-y)); }
+            100% { transform: translateY(var(--slime-base-y)); }
         }
 
         #text-container {
@@ -84,7 +87,7 @@
             pointer-events: none;
             padding: 10px; 
             z-index: 1;
-            transition: opacity 0.5s ease, top 0.3s ease-out, left 0.35s ease, transform 0.35s ease, padding 0.35s ease;
+            transition: opacity 0.5s ease, top 0.42s ease, bottom 0.42s ease, left 0.42s ease, width 0.42s ease, transform 0.42s ease, padding 0.42s ease;
             box-sizing: border-box;
         }
 
@@ -104,6 +107,11 @@
             max-height: min(calc(100vh - var(--split-menu-space, 160px) - 24px), 78vh);
         }
 
+        body.short-split-layout {
+            --slime-base-y: -20px;
+            --slime-nod-peak-y: -44px;
+        }
+
         body.split-layout #text-container {
             top: 0 !important;
             bottom: var(--split-menu-space, 160px);
@@ -119,15 +127,15 @@
         }
 
         body.split-layout #date {
-            font-size: clamp(2.2rem, 2vw, 2.8rem);
+            font-size: clamp(1.5rem, min(2vw, 4.2vh), 2.8rem);
         }
 
         body.split-layout #clock {
-            font-size: clamp(4.75rem, 5.5vw, 6.5rem);
+            font-size: clamp(3rem, min(5.5vw, 9.5vh), 6.5rem);
         }
 
         body.split-layout #counter {
-            font-size: clamp(3rem, 3.3vw, 3.9rem);
+            font-size: clamp(2rem, min(3.3vw, 5.8vh), 3.9rem);
         }
 
         body.compact-stack #slime-container {
@@ -242,16 +250,18 @@
         }
 
         #menu #reset { background: rgba(255, 255, 255, 0.05); }
-        #menu #reset:hover { border-color: #ff5a52 !important; box-shadow: 0 0 15px rgba(255, 90, 82, 0.3) !important; }
-        #menu #reset:active { background: #ff5a52 !important; color: black !important; }
+        #menu #reset:hover { border-color: #e7c039 !important; box-shadow: 0 0 15px rgba(231, 192, 57, 0.3) !important; }
+        #menu #reset:active { background: #e7c039 !important; color: black !important; }
         #menu #spotify-btn:hover, #menu #spotify-btn.active-widget { border-color: #25d865 !important; box-shadow: 0 0 15px rgba(37, 216, 101, 0.3) !important; }
         #menu #spotify-btn:active, #menu #spotify-btn.active-widget { background: #25d865 !important; }
         #menu #spotify-btn:active img, #menu #spotify-btn.active-widget img { filter: brightness(0); }
         #menu #pages-btn:hover, #menu #pages-btn.active-widget { border-color: #7aa3ff !important; box-shadow: 0 0 15px rgba(122, 163, 255, 0.3) !important; }
         #menu #pages-btn:active, #menu #pages-btn.active-widget { background: #7aa3ff !important; }
         #menu #pages-btn:active img, #menu #pages-btn.active-widget img { filter: brightness(0); }
-        #menu #close:hover { border-color: #e7c039 !important; box-shadow: 0 0 15px rgba(231, 192, 57, 0.3) !important; }
-        #menu #close:active { background: #e7c039 !important; color: black !important; }
+        #menu #settings-btn:hover, #menu #settings-btn.active-widget { border-color: #b48dff !important; box-shadow: 0 0 15px rgba(180, 141, 255, 0.3) !important; }
+        #menu #settings-btn:active, #menu #settings-btn.active-widget { background: #b48dff !important; color: black !important; }
+        #menu #close:hover { border-color: #ff5a52 !important; box-shadow: 0 0 15px rgba(255, 90, 82, 0.3) !important; }
+        #menu #close:active { background: #ff5a52 !important; color: black !important; }
         #menu button:active, #menu label:active { transform: translateY(1px) scale(0.95); }
         #menu input { accent-color: white; margin-left:8px; cursor: pointer; }
 
@@ -315,6 +325,18 @@
             cursor: pointer;
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-transform: lowercase;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease;
+        }
+        #pages-close:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #ff5a52;
+            box-shadow: 0 0 15px rgba(255, 90, 82, 0.3);
+        }
+        #pages-close:active {
+            transform: translateY(1px) scale(0.95);
+            background: #ff5a52;
+            color: black;
         }
         #pages-list {
             display: flex;
@@ -356,6 +378,200 @@
             border: 1px dashed rgba(255, 255, 255, 0.15);
             font-size: 0.95rem;
             text-transform: lowercase;
+        }
+
+        #settings-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9550;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+            padding: 16px 16px var(--settings-menu-safe-bottom) 16px;
+            box-sizing: border-box;
+        }
+        #settings-menu.open { opacity: 1; pointer-events: auto; }
+        #settings-card {
+            width: min(92vw, 440px);
+            max-width: 100%;
+            max-height: min(calc(100vh - 16px - var(--settings-menu-safe-bottom)), 720px);
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px 18px 16px 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.38) transparent;
+        }
+        #settings-card::-webkit-scrollbar {
+            width: 10px;
+        }
+        #settings-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #settings-card::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.26));
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        #settings-card::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34));
+        }
+        #settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        #settings-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: lowercase;
+        }
+        #settings-close {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: lowercase;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease;
+        }
+        #settings-close:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #ff5a52;
+            box-shadow: 0 0 15px rgba(255, 90, 82, 0.3);
+        }
+        #settings-close:active {
+            transform: translateY(1px) scale(0.95);
+            background: #ff5a52;
+            color: black;
+        }
+        #settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .settings-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .settings-section-title {
+            margin: 0 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: lowercase;
+            color: rgba(255, 255, 255, 0.58);
+        }
+        .settings-section-title::after {
+            content: "";
+            flex: 1 1 auto;
+            border-bottom: 2px dotted rgba(255, 255, 255, 0.34);
+            transform: translateY(1px);
+        }
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            color: white;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-transform: lowercase;
+            cursor: pointer;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease;
+        }
+        .settings-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: white;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+        }
+        .settings-item:active {
+            transform: translateY(1px) scale(0.98);
+        }
+        .settings-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+        .settings-title {
+            font-size: 0.98rem;
+        }
+        .settings-desc {
+            font-size: 0.82rem;
+            opacity: 0.7;
+            line-height: 1.35;
+        }
+        .settings-item input {
+            margin: 0;
+            width: 18px;
+            height: 18px;
+            flex: 0 0 auto;
+        }
+        .settings-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 8px 34px 8px 12px;
+            font: inherit;
+            text-transform: lowercase;
+            cursor: pointer;
+            min-width: 118px;
+            background-image:
+                linear-gradient(45deg, transparent 50%, white 50%),
+                linear-gradient(135deg, white 50%, transparent 50%);
+            background-position:
+                calc(100% - 18px) calc(50% - 3px),
+                calc(100% - 12px) calc(50% - 3px);
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+        .settings-select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+        }
+        .settings-select option {
+            color: black;
+            background: white;
+        }
+        .settings-item[data-select-target] {
+            user-select: none;
+        }
+        .settings-subsection {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .settings-subsection[hidden] {
+            display: none;
         }
 
         .plusone {
@@ -437,6 +653,7 @@
         .bw-mode #text-container, 
         .bw-mode #spotify-widget, 
         .bw-mode #pages-menu,
+        .bw-mode #settings-menu,
         .bw-mode #hammer {
             transition: none !important;
             opacity: 0 !important;
@@ -446,7 +663,7 @@
         .bw-mode #slime {
             transition: none !important;
             filter: grayscale(1) brightness(0) !important;
-            transform: translateX(-25vw) translateY(-45px) scale(1.1) !important;
+            transform: translateX(-25vw) translateY(var(--slime-base-y)) scale(1.1) !important;
             cursor: pointer !important;
         }
 
@@ -463,6 +680,15 @@
 
             #pages-card {
                 width: min(100%, 520px);
+            }
+
+            #settings-menu {
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            #settings-card {
+                width: min(100%, 440px);
             }
 
             #menu.show {
@@ -494,6 +720,15 @@
                 max-width: 100%;
             }
 
+            #settings-menu {
+                padding: 16px;
+            }
+
+            #settings-card {
+                width: 100%;
+                max-width: 100%;
+            }
+
             #menu.show {
                 bottom: 16px;
             }
@@ -514,8 +749,8 @@
                 font-size: 0.85rem;
             }
 
-            #menu label,
-            #menu #pages-btn {
+            #menu #pages-btn,
+            #menu #settings-btn {
                 order: 1;
             }
 
@@ -539,6 +774,126 @@
                 padding: 8px;
                 min-width: 0;
             }
+        }
+
+        body.menu-force-horizontal #menu {
+            width: max-content !important;
+            max-width: calc(100vw - 24px) !important;
+            padding: 10px !important;
+            gap: 8px !important;
+            border-radius: 18px !important;
+            flex-wrap: nowrap !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: stretch !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            scrollbar-width: none;
+        }
+
+        body.menu-force-horizontal #menu::-webkit-scrollbar {
+            display: none;
+        }
+
+        body.menu-force-horizontal #menu.show {
+            bottom: 16px !important;
+        }
+
+        body.viewport-vertical.menu-force-horizontal #menu {
+            width: calc(100vw - 32px) !important;
+            max-width: calc(100vw - 32px) !important;
+            justify-content: stretch !important;
+        }
+
+        body.viewport-vertical.menu-force-horizontal #menu #pages-btn,
+        body.viewport-vertical.menu-force-horizontal #menu #settings-btn {
+            flex: 1 1 0 !important;
+        }
+
+        body.viewport-vertical.menu-force-horizontal #menu #reset,
+        body.viewport-vertical.menu-force-horizontal #menu #spotify-btn,
+        body.viewport-vertical.menu-force-horizontal #menu #close {
+            flex: 0 0 auto !important;
+        }
+
+        body.menu-force-horizontal #menu button,
+        body.menu-force-horizontal #menu label {
+            flex: 0 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            padding: 8px 12px !important;
+            font-size: 0.85rem !important;
+        }
+
+        body.menu-force-horizontal #menu #reset {
+            order: 1 !important;
+        }
+
+        body.menu-force-horizontal #menu #settings-btn {
+            order: 2 !important;
+        }
+
+        body.menu-force-horizontal #menu #pages-btn {
+            order: 3 !important;
+        }
+
+        body.menu-force-horizontal #menu #spotify-btn {
+            order: 4 !important;
+        }
+
+        body.menu-force-horizontal #menu #close {
+            order: 5 !important;
+        }
+
+        body.menu-force-vertical #menu {
+            display: flex !important;
+            width: calc(100vw - 32px) !important;
+            max-width: calc(100vw - 32px) !important;
+            padding: 10px !important;
+            gap: 8px !important;
+            border-radius: 18px !important;
+            flex-wrap: wrap !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: stretch !important;
+        }
+
+        body.menu-force-vertical #menu.show {
+            bottom: 16px !important;
+        }
+
+        body.menu-force-vertical #menu button,
+        body.menu-force-vertical #menu label {
+            flex: 1 1 calc(50% - 8px) !important;
+            width: auto !important;
+            min-width: 0 !important;
+            padding: 8px 12px !important;
+            font-size: 0.85rem !important;
+        }
+
+        body.menu-force-vertical #menu #pages-btn,
+        body.menu-force-vertical #menu #settings-btn {
+            order: 1 !important;
+        }
+
+        body.menu-force-vertical #menu #reset {
+            order: 2 !important;
+        }
+
+        body.menu-force-vertical #menu #close {
+            order: 3 !important;
+        }
+
+        body.menu-force-vertical #menu #spotify-btn {
+            order: 4 !important;
+        }
+
+        body.menu-force-vertical #menu #reset,
+        body.menu-force-vertical #menu #close,
+        body.menu-force-vertical #menu #spotify-btn {
+            flex: 1 1 calc((100% - 16px) / 3) !important;
+            width: calc((100% - 16px) / 3) !important;
+            padding: 8px !important;
         }
     </style>
 </head>
@@ -565,7 +920,7 @@
         <div id="pages-card" role="dialog" aria-modal="true" aria-label="other pages">
             <div id="pages-header">
                 <h2>other pages</h2>
-                <button id="pages-close" title="close pages menu">close</button>
+                <button id="pages-close" title="close pages menu">✕</button>
             </div>
             <div id="pages-list">
                 <a class="pages-link" href="./cookie-stealer/index.html" target="_blank" rel="noopener noreferrer">
@@ -581,11 +936,82 @@
         </div>
     </div>
 
+    <div id="settings-menu" aria-hidden="true">
+        <div id="settings-card" role="dialog" aria-modal="true" aria-label="settings">
+            <div id="settings-header">
+                <h2>settings</h2>
+                <button id="settings-close" title="close settings menu">✕</button>
+            </div>
+            <div id="settings-list">
+                <div class="settings-section">
+                    <label class="settings-item" for="follow" title="makes the slime slightly follow your cursor">
+                        <span class="settings-copy">
+                            <span class="settings-title">follow cursor</span>
+                            <span class="settings-desc">makes the slime slightly follow your cursor</span>
+                        </span>
+                        <input type="checkbox" id="follow">
+                    </label>
+                    <label class="settings-item" for="hue-toggle" title="enables hue animation of the slime">
+                        <span class="settings-copy">
+                            <span class="settings-title">enable hue</span>
+                            <span class="settings-desc">turns on the slime hue animation</span>
+                        </span>
+                        <input type="checkbox" id="hue-toggle">
+                    </label>
+                    <label class="settings-item" for="bg-toggle" title="enables dots in the background">
+                        <span class="settings-copy">
+                            <span class="settings-title">enable bg</span>
+                            <span class="settings-desc">shows the moving dots in the background</span>
+                        </span>
+                        <input type="checkbox" id="bg-toggle">
+                    </label>
+                </div>
+                <div class="settings-section">
+                    <p class="settings-section-title">layout</p>
+                    <div class="settings-item" data-select-target="layout-control-mode" title="controls how layout settings are grouped">
+                        <span class="settings-copy">
+                            <span class="settings-title">layout</span>
+                            <span class="settings-desc">choose a layout for everything</span>
+                        </span>
+                        <select id="layout-control-mode" class="settings-select" aria-label="layout control">
+                            <option value="auto">auto</option>
+                            <option value="vertical">vertical</option>
+                            <option value="horizontal">horizontal</option>
+                            <option value="separate">separate</option>
+                        </select>
+                    </div>
+                    <div id="separate-layout-settings" class="settings-subsection">
+                        <div class="settings-item" data-select-target="layout-mode" title="controls how the slime and text are arranged">
+                            <span class="settings-copy">
+                                <span class="settings-title">page layout</span>
+                                <span class="settings-desc">choose a layout for the page</span>
+                            </span>
+                            <select id="layout-mode" class="settings-select" aria-label="page layout">
+                                <option value="auto">auto</option>
+                                <option value="vertical">vertical</option>
+                                <option value="horizontal">horizontal</option>
+                            </select>
+                        </div>
+                        <div class="settings-item" data-select-target="menu-layout-mode" title="controls how the lower menu is arranged">
+                            <span class="settings-copy">
+                                <span class="settings-title">menu layout</span>
+                                <span class="settings-desc">choose a layout for the menu</span>
+                            </span>
+                            <select id="menu-layout-mode" class="settings-select" aria-label="menu layout">
+                                <option value="auto">auto</option>
+                                <option value="vertical">vertical</option>
+                                <option value="horizontal">horizontal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="menu">
         <button id="reset" title="resets your score">⟲</button>
-        <label title="makes the slime slightly follow your cursor">follow cursor?<input type="checkbox" id="follow"></label>
-        <label title="disables hue animation of the slime">disable hue?<input type="checkbox" id="hue-toggle"></label>
-        <label title="disables dots in the background">disable bg?<input type="checkbox" id="bg-toggle"></label>
+        <button id="settings-btn" title="opens settings">settings</button>
         <button id="pages-btn" title="opens a list of other pages">other pages</button>
         <button id="spotify-btn" title="opens my playlist on spotify"><img src="./index_files/spotify-icon.svg" style="width:20px; height:20px; display:block;"></button>
         <button id="close" title="closes this menu, click the slime to open it again">✕</button>
@@ -729,7 +1155,15 @@
         const pagesBtn=document.getElementById('pages-btn');
         const pagesMenu=document.getElementById('pages-menu');
         const pagesClose=document.getElementById('pages-close');
+        const settingsBtn=document.getElementById('settings-btn');
+        const settingsMenu=document.getElementById('settings-menu');
+        const settingsCard=document.getElementById('settings-card');
+        const settingsClose=document.getElementById('settings-close');
         const followToggle=document.getElementById('follow');
+        const layoutControlModeSelect=document.getElementById('layout-control-mode');
+        const layoutModeSelect=document.getElementById('layout-mode');
+        const menuLayoutModeSelect=document.getElementById('menu-layout-mode');
+        const separateLayoutSettings=document.getElementById('separate-layout-settings');
         const hueToggle=document.getElementById('hue-toggle');
         const bgToggle=document.getElementById('bg-toggle');
         const bgCanvas=document.getElementById('bg-canvas');
@@ -744,6 +1178,9 @@
         let clicks=Number(localStorage.getItem('slimeClicks'))||0;
         let activated=false;
         let followCursor=localStorage.getItem('followCursor')=== 'true';
+        let layoutControlMode=localStorage.getItem('layoutControlMode') || 'separate';
+        let layoutMode=localStorage.getItem('layoutMode') || 'auto';
+        let menuLayoutMode=localStorage.getItem('menuLayoutMode') || 'auto';
         let hueOff=localStorage.getItem('hueOff')=== 'true';
         let bgOff=localStorage.getItem('bgOff')=== 'true';
         let resetPending=false;
@@ -758,9 +1195,38 @@
         let comboTimeout = null;
 
         followToggle.checked=followCursor;
-        hueToggle.checked=hueOff;
-        bgToggle.checked=bgOff;
+        layoutControlModeSelect.value=layoutControlMode;
+        layoutModeSelect.value=layoutMode;
+        menuLayoutModeSelect.value=menuLayoutMode;
+        hueToggle.checked=!hueOff;
+        bgToggle.checked=!bgOff;
         if(hueOff) img.classList.remove('hue-anim');
+
+        function updateLayoutControlVisibility() {
+            separateLayoutSettings.hidden = layoutControlMode !== 'separate';
+        }
+
+        function getEffectiveLayoutMode() {
+            return layoutControlMode === 'separate' ? layoutMode : layoutControlMode;
+        }
+
+        function getEffectiveMenuLayoutMode() {
+            return layoutControlMode === 'separate' ? menuLayoutMode : layoutControlMode;
+        }
+
+        function openSelect(selectElement) {
+            if (!selectElement) return;
+            selectElement.focus({ preventScroll: true });
+            if (typeof selectElement.showPicker === 'function') {
+                try {
+                    selectElement.showPicker();
+                    return;
+                } catch (error) {}
+            }
+            selectElement.click();
+        }
+
+        updateLayoutControlVisibility();
 
         function bumpCounter() {
             counter.classList.add('combo');
@@ -814,10 +1280,14 @@
             } catch (error) {}
         }
 
+        function getSlimeBaseY() {
+            return parseFloat(getComputedStyle(body).getPropertyValue('--slime-base-y')) || -45;
+        }
+
         function applyTransform(x = 0, y = 0) {
             if(isBWMode || isSlimeBlocked) return;
             const scale = isSlimeDown ? 0.92 : 1;
-            const translateY = -45 + y;
+            const translateY = getSlimeBaseY() + y;
             img.style.transform = `translateY(${translateY}px) translateX(${x}px) scale(${scale})`;
         }
 
@@ -852,10 +1322,22 @@
 
         function updateResponsiveLayout() {
             const menuRect = menu.classList.contains('show') ? menu.getBoundingClientRect() : null;
-            const shouldSplitLayout = window.innerWidth >= 900 && window.innerWidth > window.innerHeight;
-            const splitMenuSpace = menuRect ? Math.max(window.innerHeight - menuRect.top, 120) : 160;
+            const effectiveLayoutMode = getEffectiveLayoutMode();
+            const effectiveMenuLayoutMode = getEffectiveMenuLayoutMode();
+            const shouldSplitLayoutAuto = window.innerWidth >= 900 && window.innerWidth > window.innerHeight;
+            const shouldSplitLayout = effectiveLayoutMode === 'auto'
+                ? shouldSplitLayoutAuto
+                : effectiveLayoutMode === 'horizontal';
+            const splitMenuSpace = menuRect ? Math.max(window.innerHeight - menuRect.top, 120) : 0;
+            const shouldUseShortSplitLayout = shouldSplitLayout && window.innerHeight <= 720;
+            const settingsMenuSafeBottom = menuRect ? Math.max(window.innerHeight - menuRect.top + 12, 28) : 16;
             body.style.setProperty('--split-menu-space', `${splitMenuSpace}px`);
+            body.style.setProperty('--settings-menu-safe-bottom', `${settingsMenuSafeBottom}px`);
+            body.classList.toggle('viewport-vertical', window.innerHeight > window.innerWidth);
             body.classList.toggle('split-layout', shouldSplitLayout);
+            body.classList.toggle('short-split-layout', shouldUseShortSplitLayout);
+            body.classList.toggle('menu-force-horizontal', effectiveMenuLayoutMode === 'horizontal');
+            body.classList.toggle('menu-force-vertical', effectiveMenuLayoutMode === 'vertical');
             if (!shouldSplitLayout) {
                 body.classList.remove('compact-stack');
                 positionTextContainer();
@@ -905,7 +1387,7 @@
                 if(isBWLocked) return;
                 isSlimeBlocked = true;
                 img.classList.add('blocked');
-                img.style.transform = 'translateY(-45px) translateX(0px) scale(1)';
+                img.style.transform = `translateY(${getSlimeBaseY()}px) translateX(0px) scale(1)`;
                 exitBWMode();
                 spawnEffect(e, true);
                 
@@ -943,8 +1425,8 @@
             e.stopPropagation();
             if(!resetPending){
                 resetPending=true;
-                resetBtn.style.background='#ff5a52';
-                resetBtn.style.borderColor='#ff5a52';
+                resetBtn.style.background='#e7c039';
+                resetBtn.style.borderColor='#e7c039';
                 resetBtn.style.color='black';
                 resetBtn.classList.add('shake');
                 resetTimeout = setTimeout(()=>{
@@ -982,9 +1464,27 @@
 
         function togglePagesMenu(forceOpen) {
             const isOpen = typeof forceOpen === 'boolean' ? forceOpen : !pagesMenu.classList.contains('open');
+            if (isOpen && settingsMenu.classList.contains('open')) {
+                settingsMenu.classList.remove('open');
+                settingsMenu.setAttribute('aria-hidden', 'true');
+                settingsBtn.classList.remove('active-widget');
+            }
             pagesMenu.classList.toggle('open', isOpen);
             pagesMenu.setAttribute('aria-hidden', String(!isOpen));
             pagesBtn.classList.toggle('active-widget', isOpen);
+            playSound(isOpen ? audioIn : audioOut);
+        }
+
+        function toggleSettingsMenu(forceOpen) {
+            const isOpen = typeof forceOpen === 'boolean' ? forceOpen : !settingsMenu.classList.contains('open');
+            if (isOpen && pagesMenu.classList.contains('open')) {
+                pagesMenu.classList.remove('open');
+                pagesMenu.setAttribute('aria-hidden', 'true');
+                pagesBtn.classList.remove('active-widget');
+            }
+            settingsMenu.classList.toggle('open', isOpen);
+            settingsMenu.setAttribute('aria-hidden', String(!isOpen));
+            settingsBtn.classList.toggle('active-widget', isOpen);
             playSound(isOpen ? audioIn : audioOut);
         }
 
@@ -998,21 +1498,60 @@
             if (e.target === pagesMenu) togglePagesMenu(false);
         });
 
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSettingsMenu();
+        });
+
+        settingsClose.addEventListener('click', () => toggleSettingsMenu(false));
+        settingsMenu.addEventListener('click', (e) => {
+            if (e.target === settingsMenu) toggleSettingsMenu(false);
+        });
+
         followToggle.addEventListener('change',()=>{
             followCursor=followToggle.checked;
             localStorage.setItem('followCursor', followCursor);
             if(!followCursor) { lastX = 0; lastY = 0; applyTransform(); }
         });
 
+        layoutControlModeSelect.addEventListener('change',()=>{
+            layoutControlMode=layoutControlModeSelect.value;
+            localStorage.setItem('layoutControlMode', layoutControlMode);
+            updateLayoutControlVisibility();
+            updateResponsiveLayout();
+        });
+
+        layoutModeSelect.addEventListener('change',()=>{
+            layoutMode=layoutModeSelect.value;
+            localStorage.setItem('layoutMode', layoutMode);
+            updateResponsiveLayout();
+        });
+
+        menuLayoutModeSelect.addEventListener('change',()=>{
+            menuLayoutMode=menuLayoutModeSelect.value;
+            localStorage.setItem('menuLayoutMode', menuLayoutMode);
+            updateResponsiveLayout();
+        });
+
+        document.querySelectorAll('.settings-item[data-select-target]').forEach((item) => {
+            item.addEventListener('click', (event) => {
+                const targetId = item.getAttribute('data-select-target');
+                const select = document.getElementById(targetId);
+                if (!select) return;
+                if (event.target === select) return;
+                openSelect(select);
+            });
+        });
+
         hueToggle.addEventListener('change',()=>{
-            hueOff=hueToggle.checked;
+            hueOff=!hueToggle.checked;
             localStorage.setItem('hueOff', hueOff);
             if(hueOff) img.classList.remove('hue-anim');
             else if(activated) img.classList.add('hue-anim');
         });
 
         bgToggle.addEventListener('change',()=>{
-            bgOff=bgToggle.checked;
+            bgOff=!bgToggle.checked;
             localStorage.setItem('bgOff', bgOff);
             if(bgOff) bgCanvas.style.opacity = "0";
             else if(activated) bgCanvas.style.opacity = "1";
@@ -1020,6 +1559,12 @@
 
         closeBtn.addEventListener('click',()=>{
             menu.classList.remove('show');
+            pagesMenu.classList.remove('open');
+            pagesMenu.setAttribute('aria-hidden', 'true');
+            pagesBtn.classList.remove('active-widget');
+            settingsMenu.classList.remove('open');
+            settingsMenu.setAttribute('aria-hidden', 'true');
+            settingsBtn.classList.remove('active-widget');
             playSound(audioOut);
             updateResponsiveLayout();
         });
@@ -1040,6 +1585,7 @@
         });
 
         window.addEventListener('wheel', e => {
+            if(settingsMenu.classList.contains('open') && settingsCard.contains(e.target)) return;
             if(isBWMode || isDraggingHammer) return;
             if(e.deltaY < 0) hammerProgress = Math.min(1, hammerProgress + 0.1);
             else hammerProgress = Math.max(0, hammerProgress - 0.1);
