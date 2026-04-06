@@ -229,13 +229,15 @@ body.compact-stack #counter {
 }
 
 body.split-layout #counter-warning {
-    position: static;
-    margin-top: 8px;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
     transform: none;
+    margin-top: 0;
     align-items: flex-start;
     text-align: left;
-    width: 100%;
-    max-width: min(42ch, calc(100vw - 48px));
+    width: max-content;
+    max-width: calc(100vw - 32px);
 }
 
 body.split-layout #counter-block,
@@ -257,6 +259,16 @@ body.split-layout #counter {
     flex-direction: column;
     align-items: center;
     width: fit-content;
+}
+
+#counter-warning {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    margin-top: 0;
 }
 
 #date {
@@ -302,13 +314,17 @@ body.split-layout #counter {
 }
 
 #counter-warning {
-    margin-top: 8px;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 3px;
     width: max-content;
     max-width: calc(100vw - 32px);
+    min-width: 0;
     color: rgba(255, 255, 255, 0.52);
     font-size: 0.78rem;
     line-height: 1.35;
@@ -328,6 +344,10 @@ body.split-layout #counter {
 #counter-warning .counter-warning-prefix {
     display: inline-flex;
     justify-content: center;
+}
+
+#counter-warning-primary {
+    white-space: nowrap;
 }
 
 #counter-warning .counter-warning-text {
@@ -394,6 +414,10 @@ body.split-layout #counter {
     opacity: 0;
 }
 
+#counter.counter--down .digit.new {
+    transform: translateY(120%);
+}
+
 .digit.current {
     transform: translateY(0);
     opacity: 1;
@@ -402,6 +426,10 @@ body.split-layout #counter {
 .digit.old {
     transform: translateY(120%);
     opacity: 0;
+}
+
+#counter.counter--down .digit.old {
+    transform: translateY(-120%);
 }
 
 /* bottom menu */
@@ -971,6 +999,33 @@ body.split-layout #counter {
 
     100% {
         transform: translate(-50%, -80px) scale(1);
+        opacity: 0;
+    }
+}
+
+.minusone {
+    position: absolute;
+    color: #ff8585;
+    font-size: 2rem;
+    font-weight: 600;
+    animation: minusone-move 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes minusone-move {
+    0% {
+        transform: translate(-50%, 0px) scale(0.5);
+        opacity: 0;
+    }
+
+    30% {
+        transform: translate(-50%, 20px) scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, 60px) scale(1);
         opacity: 0;
     }
 }

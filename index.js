@@ -12,6 +12,7 @@
         cheatsEnabled: "cheatsEnabled",
         cheatsUsed: "cheatsUsed",
         rightClickSubtractEnabled: "rightClickSubtractEnabled",
+        scrollChangeEnabled: "scrollChangeEnabled",
         lastNotifyAt: "slimeLastNotifyAt",
     };
 
@@ -99,7 +100,9 @@
         refs.cheatCounterValue.addEventListener("input", handleCheatCounterInput);
         refs.cheatCounterValue.addEventListener("focus", handleCheatCounterFocus);
         refs.cheatCounterValue.addEventListener("keydown", handleCheatCounterKeydown);
+        refs.scrollChangeToggle.addEventListener("change", handleScrollChangeToggle);
         refs.rightClickSubtractToggle.addEventListener("change", handleRightClickSubtractChange);
+        refs.counter.addEventListener("wheel", counter.handleCounterWheel, { passive: false });
         refs.closeBtn.addEventListener("click", overlays.closePrimaryUi);
         refs.hammer.addEventListener("mousedown", slime.handleHammerMouseDown);
 
@@ -232,6 +235,11 @@
         }
     }
 
+    function handleScrollChangeToggle() {
+        state.scrollChangeEnabled = refs.scrollChangeToggle.checked;
+        storeValue(STORAGE_KEYS.scrollChangeEnabled, state.scrollChangeEnabled);
+    }
+
     function handleRightClickSubtractChange() {
         state.rightClickSubtractEnabled = refs.rightClickSubtractToggle.checked;
         storeValue(STORAGE_KEYS.rightClickSubtractEnabled, state.rightClickSubtractEnabled);
@@ -259,6 +267,7 @@
         refs.counterSafetyToggle.checked = state.counterSafetyEnabled;
         refs.cheatsToggle.checked = state.cheatsEnabled;
         refs.cheatCounterValue.value = String(state.clicks);
+        refs.scrollChangeToggle.checked = state.scrollChangeEnabled;
         refs.rightClickSubtractToggle.checked = state.rightClickSubtractEnabled;
         syncCheatControls();
     }
@@ -301,6 +310,7 @@
             counterSafetyToggle: document.getElementById("counter-safety-toggle"),
             cheatsToggle: document.getElementById("cheats-toggle"),
             cheatCounterValue: document.getElementById("cheat-counter-value"),
+            scrollChangeToggle: document.getElementById("scroll-change-toggle"),
             rightClickSubtractToggle: document.getElementById("right-click-subtract-toggle"),
             hammer: document.getElementById("hammer"),
             selectTriggers: Array.from(document.querySelectorAll(".settings-item[data-select-target]")),
@@ -321,6 +331,7 @@
             counterSafetyEnabled: loadBooleanWithDefault(STORAGE_KEYS.counterSafetyEnabled, true),
             cheatsEnabled: loadBoolean(STORAGE_KEYS.cheatsEnabled),
             rightClickSubtractEnabled: loadBoolean(STORAGE_KEYS.rightClickSubtractEnabled),
+            scrollChangeEnabled: loadBoolean(STORAGE_KEYS.scrollChangeEnabled),
             resetPending: false,
             resetTimeoutId: null,
             isSlimeDown: false,
@@ -711,13 +722,21 @@
     }
 
     function createCounterController(refsValue, stateValue, rollingTextValue, audioValue) {
+        let changeDirection = "up";
+
         return {
             applyCheatValue,
+            handleCounterWheel,
             handleResetClick,
+            setChangeDirection,
             spawnEffect,
             updateCheatsIndicator,
             updateDisplay,
         };
+
+        function setChangeDirection(direction) {
+            changeDirection = direction === "down" ? "down" : "up";
+        }
 
         function updateDisplay(forceRender = false) {
             const counterText = String(stateValue.clicks);
@@ -729,6 +748,8 @@
 
             refsValue.counter.dataset.counterSafety = isSafetyActive ? "on" : "off";
             refsValue.counter.classList.toggle("negative", stateValue.clicks < 0);
+            refsValue.counter.classList.toggle("counter--down", changeDirection === "down");
+            refsValue.counter.title = stateValue.clicks < 0 ? "-your score" : "your score";
             rollingTextValue.update(refsValue.counter, counterText, { forceRender });
             refsValue.counterWarning.hidden = !shouldShowWarning;
             refsValue.counterWarningPrimary.textContent = warningPrimaryText;
@@ -741,12 +762,19 @@
             }
         }
 
-        function updateCheatsIndicator() {
+        function updateCheatsIndicator(options = {}) {
+            const { instantHide = false } = options;
             const shouldShow = stateValue.hasUsedCheats;
             refsValue.cheatsIndicator.textContent = stateValue.cheatsEnabled ? "cheats are enabled" : "cheats were enabled";
 
             if (!shouldShow || !stateValue.activated || stateValue.isBwMode) {
                 if (refsValue.cheatsIndicator.hidden) {
+                    return;
+                }
+
+                if (instantHide) {
+                    refsValue.cheatsIndicator.classList.remove("show", "fade-out");
+                    refsValue.cheatsIndicator.hidden = true;
                     return;
                 }
 
@@ -765,6 +793,7 @@
 
             if (!refsValue.cheatsIndicator.hidden) {
                 refsValue.cheatsIndicator.classList.remove("fade-out");
+                refsValue.cheatsIndicator.classList.add("show");
                 return;
             }
 
@@ -820,9 +849,9 @@
             updateCheatsIndicator();
         }
 
-        function spawnEffect(event, isTen) {
+        function spawnEffect(event, isTen, isNegative = false) {
             const plus = document.createElement("div");
-            plus.className = isTen ? "plusten" : "plusone";
+            plus.className = isTen ? "plusten" : isNegative ? "minusone" : "plusone";
 
             if (isTen) {
                 ["+", "1", "0"].forEach((char) => {
@@ -831,12 +860,12 @@
                     plus.appendChild(span);
                 });
             } else {
-                plus.textContent = "+1";
+                plus.textContent = isNegative ? "-1" : "+1";
             }
 
             document.body.appendChild(plus);
             plus.style.left = `${event.clientX}px`;
-            plus.style.top = `${event.clientY - 20}px`;
+            plus.style.top = `${event.clientY + (isNegative ? 20 : -20)}px`;
 
             if (isTen) {
                 window.setTimeout(() => {
@@ -847,6 +876,27 @@
             window.setTimeout(() => {
                 plus.remove();
             }, isTen ? 2100 : 800);
+        }
+
+        function handleCounterWheel(event) {
+            if (
+                !stateValue.cheatsEnabled
+                || !stateValue.scrollChangeEnabled
+                || stateValue.isBwMode
+                || stateValue.isSlimeBlocked
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            setChangeDirection(event.deltaY < 0 ? "up" : "down");
+            stateValue.clicks += event.deltaY < 0 ? 1 : -1;
+            stateValue.hasUsedCheats = true;
+            storeValue(STORAGE_KEYS.cheatsUsed, true);
+            updateDisplay();
+            updateCheatsIndicator();
         }
 
         function handleResetClick(event) {
@@ -1080,6 +1130,7 @@
 
             showUi();
             stateValue.clicks += 1;
+            counterValue.setChangeDirection("up");
             counterValue.updateDisplay();
             counterValue.spawnEffect(event, false);
             notifierValue.notify();
@@ -1104,7 +1155,9 @@
             stateValue.clicks -= 1;
             stateValue.hasUsedCheats = true;
             storeValue(STORAGE_KEYS.cheatsUsed, true);
-            counterValue.updateDisplay(true);
+            counterValue.setChangeDirection("down");
+            counterValue.updateDisplay();
+            counterValue.spawnEffect(event, false, true);
             counterValue.updateCheatsIndicator();
         }
 
@@ -1193,6 +1246,7 @@
             refsValue.slime.classList.remove("hue-anim");
             refsValue.bwSlime.classList.remove("faded-in");
             refsValue.bwScene.setAttribute("aria-hidden", "false");
+            counterValue.updateCheatsIndicator({ instantHide: true });
 
             requestAnimationFrame(() => {
                 refsValue.bwSlime.classList.add("faded-in");
@@ -1216,6 +1270,7 @@
 
             layoutValue.updateResponsiveLayout();
             applyTransform();
+            counterValue.updateCheatsIndicator();
         }
     }
 
@@ -1263,5 +1318,6 @@
     function syncCheatControls() {
         const isEnabled = refs.cheatsToggle.checked;
         refs.cheatCounterValue.disabled = !isEnabled;
+        refs.scrollChangeToggle.disabled = !isEnabled;
     }
 })();

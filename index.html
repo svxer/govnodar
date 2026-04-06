@@ -35,7 +35,7 @@
                 </span>
                 <span class="counter-warning-line counter-warning-line-secondary">
                     <span class="counter-warning-prefix" aria-hidden="true"></span>
-                    <span class="counter-warning-text">(you can turn thiss off in settings)</span>
+                    <span class="counter-warning-text">you can disable this warning by resetting the counter</span>
                 </span>
             </div>
         </div>
@@ -169,6 +169,13 @@
                             <input type="number" id="cheat-counter-value" class="settings-number-input" aria-label="counter number">
                         </div>
                     </div>
+                    <label class="settings-item" for="scroll-change-toggle" title="enables changing the counter value by scrolling on it">
+                        <span class="settings-copy">
+                            <span class="settings-title">scroll change</span>
+                            <span class="settings-desc">scrolling on the counter adjusts the value</span>
+                        </span>
+                        <input type="checkbox" id="scroll-change-toggle">
+                    </label>
                     <label class="settings-item" for="right-click-subtract-toggle" title="lets right click subtract from the counter">
                         <span class="settings-copy">
                             <span class="settings-title">right click subtract</span>
@@ -181,7 +188,7 @@
         </div>
     </div>
 
-    <div id="cheats-indicator" title="this text can be removed by resetting the counter" hidden>cheats are enabled</div>
+    <div id="cheats-indicator" title="you can disable this warning by resetting the counter" hidden>cheats are enabled</div>
 
     <div id="menu">
         <button id="reset" class="menu-button" type="button" title="resets your score">&#x27f2;</button>
