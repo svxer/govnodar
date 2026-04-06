@@ -8,6 +8,10 @@
         menuLayoutMode: "menuLayoutMode",
         hueOff: "hueOff",
         bgOff: "bgOff",
+        counterSafetyEnabled: "counterSafetyEnabled",
+        cheatsEnabled: "cheatsEnabled",
+        cheatsUsed: "cheatsUsed",
+        rightClickSubtractEnabled: "rightClickSubtractEnabled",
         lastNotifyAt: "slimeLastNotifyAt",
     };
 
@@ -45,6 +49,7 @@
         bindEvents();
         layout.updateLayoutControlVisibility();
         counter.updateDisplay();
+        counter.updateCheatsIndicator();
         background.start();
         clock.start();
 
@@ -70,6 +75,7 @@
         refs.slime.addEventListener("load", handleImageLoad);
         refs.body.addEventListener("mousedown", slime.handleBodyMouseDown);
         refs.slime.addEventListener("click", slime.handleSlimeClick);
+        refs.slime.addEventListener("contextmenu", slime.handleSlimeContextMenu);
 
         refs.resetBtn.addEventListener("click", counter.handleResetClick);
         refs.spotifyBtn.addEventListener("click", overlays.toggleSpotifyWidget);
@@ -88,6 +94,12 @@
         refs.menuLayoutModeSelect.addEventListener("change", handleMenuLayoutModeChange);
         refs.hueToggle.addEventListener("change", handleHueToggleChange);
         refs.bgToggle.addEventListener("change", handleBackgroundToggleChange);
+        refs.counterSafetyToggle.addEventListener("change", handleCounterSafetyChange);
+        refs.cheatsToggle.addEventListener("change", handleCheatsToggleChange);
+        refs.cheatCounterValue.addEventListener("input", handleCheatCounterInput);
+        refs.cheatCounterValue.addEventListener("focus", handleCheatCounterFocus);
+        refs.cheatCounterValue.addEventListener("keydown", handleCheatCounterKeydown);
+        refs.rightClickSubtractToggle.addEventListener("change", handleRightClickSubtractChange);
         refs.closeBtn.addEventListener("click", overlays.closePrimaryUi);
         refs.hammer.addEventListener("mousedown", slime.handleHammerMouseDown);
 
@@ -190,6 +202,41 @@
         }
     }
 
+    function handleCounterSafetyChange() {
+        state.counterSafetyEnabled = refs.counterSafetyToggle.checked;
+        storeValue(STORAGE_KEYS.counterSafetyEnabled, state.counterSafetyEnabled);
+        counter.updateDisplay(true);
+    }
+
+    function handleCheatsToggleChange() {
+        state.cheatsEnabled = refs.cheatsToggle.checked;
+        storeValue(STORAGE_KEYS.cheatsEnabled, state.cheatsEnabled);
+
+        refs.cheatCounterValue.value = String(state.clicks);
+
+        syncCheatControls();
+        counter.updateCheatsIndicator();
+    }
+
+    function handleCheatCounterInput() {
+        counter.applyCheatValue();
+    }
+
+    function handleCheatCounterFocus(event) {
+        event.currentTarget.select();
+    }
+
+    function handleCheatCounterKeydown(event) {
+        if (event.key === "Enter") {
+            counter.applyCheatValue();
+        }
+    }
+
+    function handleRightClickSubtractChange() {
+        state.rightClickSubtractEnabled = refs.rightClickSubtractToggle.checked;
+        storeValue(STORAGE_KEYS.rightClickSubtractEnabled, state.rightClickSubtractEnabled);
+    }
+
     function handleSelectTriggerClick(event) {
         const item = event.currentTarget;
         const targetId = item.getAttribute("data-select-target");
@@ -209,6 +256,11 @@
         refs.menuLayoutModeSelect.value = state.menuLayoutMode;
         refs.hueToggle.checked = !state.hueOff;
         refs.bgToggle.checked = !state.bgOff;
+        refs.counterSafetyToggle.checked = state.counterSafetyEnabled;
+        refs.cheatsToggle.checked = state.cheatsEnabled;
+        refs.cheatCounterValue.value = String(state.clicks);
+        refs.rightClickSubtractToggle.checked = state.rightClickSubtractEnabled;
+        syncCheatControls();
     }
 
     // shared helpers
@@ -224,6 +276,9 @@
             date: document.getElementById("date"),
             clock: document.getElementById("clock"),
             counter: document.getElementById("counter"),
+            counterWarning: document.getElementById("counter-warning"),
+            counterWarningPrimary: document.getElementById("counter-warning-primary"),
+            cheatsIndicator: document.getElementById("cheats-indicator"),
             menu: document.getElementById("menu"),
             resetBtn: document.getElementById("reset"),
             settingsBtn: document.getElementById("settings-btn"),
@@ -243,6 +298,10 @@
             separateLayoutSettings: document.getElementById("separate-layout-settings"),
             hueToggle: document.getElementById("hue-toggle"),
             bgToggle: document.getElementById("bg-toggle"),
+            counterSafetyToggle: document.getElementById("counter-safety-toggle"),
+            cheatsToggle: document.getElementById("cheats-toggle"),
+            cheatCounterValue: document.getElementById("cheat-counter-value"),
+            rightClickSubtractToggle: document.getElementById("right-click-subtract-toggle"),
             hammer: document.getElementById("hammer"),
             selectTriggers: Array.from(document.querySelectorAll(".settings-item[data-select-target]")),
         };
@@ -259,6 +318,9 @@
             menuLayoutMode: loadString(STORAGE_KEYS.menuLayoutMode, "auto"),
             hueOff: loadBoolean(STORAGE_KEYS.hueOff),
             bgOff: loadBoolean(STORAGE_KEYS.bgOff),
+            counterSafetyEnabled: loadBooleanWithDefault(STORAGE_KEYS.counterSafetyEnabled, true),
+            cheatsEnabled: loadBoolean(STORAGE_KEYS.cheatsEnabled),
+            rightClickSubtractEnabled: loadBoolean(STORAGE_KEYS.rightClickSubtractEnabled),
             resetPending: false,
             resetTimeoutId: null,
             isSlimeDown: false,
@@ -270,6 +332,7 @@
             isDraggingHammer: false,
             hammerProgress: 0,
             comboTimeoutId: null,
+            hasUsedCheats: loadBoolean(STORAGE_KEYS.cheatsUsed),
             // mouse drives both the background dots and optional slime follow movement.
             mouse: {
                 x: -2000,
@@ -307,21 +370,32 @@
             update,
         };
 
-        function update(element, nextValue) {
+        function update(element, nextValue, options = {}) {
             const currentValue = element.getAttribute("data-value") || "";
+            const { forceRender = false } = options;
+            const shouldBlur = shouldBlurValue(element);
 
-            if (currentValue === nextValue) {
+            if (currentValue === nextValue && !forceRender) {
                 return;
             }
+
+            const currentSegments = buildSegments(currentValue, shouldBlur);
+            const nextSegments = buildSegments(nextValue, shouldBlur);
 
             element.setAttribute("data-value", nextValue);
 
-            if (document.hidden || currentValue.length !== nextValue.length) {
-                renderStaticValue(element, nextValue);
+            if (
+                forceRender
+                || currentValue === nextValue
+                || document.hidden
+                || currentValue.length !== nextValue.length
+                || shouldRebuildMarkup(currentSegments, nextSegments)
+            ) {
+                renderStaticValue(element, nextValue, nextSegments);
                 return;
             }
 
-            const containers = element.querySelectorAll(".digit-container");
+            const containers = getDigitContainers(element);
 
             for (let index = 0; index < nextValue.length; index += 1) {
                 const container = containers[index];
@@ -347,20 +421,84 @@
             }
         }
 
-        function renderStaticValue(element, value) {
+        function renderStaticValue(element, value, segments = buildSegments(value, shouldBlurValue(element))) {
             element.innerHTML = "";
 
-            for (const char of value) {
-                const wrap = document.createElement("span");
-                const digit = document.createElement("span");
-                const isNumeric = Number.isFinite(Number.parseInt(char, 10));
+            segments.forEach((segment) => {
+                const group = document.createElement("span");
+                group.className = `digit-group${segment.isBlurred ? " blur-group" : ""}`;
 
-                wrap.className = `digit-container${isNumeric ? "" : " sep"}`;
-                digit.className = "digit current";
-                digit.textContent = char;
-                wrap.appendChild(digit);
-                element.appendChild(wrap);
+                for (const char of segment.text) {
+                    group.appendChild(createDigitContainer(char));
+                }
+
+                element.appendChild(group);
+            });
+        }
+
+        function buildSegments(value, allowBlur) {
+            const segments = [];
+            let index = 0;
+
+            while (index < value.length) {
+                if (allowBlur && value.slice(index, index + 2) === "67") {
+                    let end = index + 2;
+
+                    while (allowBlur && value.slice(end, end + 2) === "67") {
+                        end += 2;
+                    }
+
+                    segments.push({
+                        text: value.slice(index, end),
+                        isBlurred: true,
+                    });
+                    index = end;
+                    continue;
+                }
+
+                segments.push({
+                    text: value[index],
+                    isBlurred: false,
+                });
+                index += 1;
             }
+
+            return segments;
+        }
+
+        function shouldBlurValue(element) {
+            return element.id === "counter" && element.dataset.counterSafety !== "off";
+        }
+
+        function shouldRebuildMarkup(currentSegments, nextSegments) {
+            if (currentSegments.length !== nextSegments.length) {
+                return true;
+            }
+
+            return currentSegments.some((segment, index) => {
+                const nextSegment = nextSegments[index];
+
+                return (
+                    segment.isBlurred !== nextSegment.isBlurred
+                    || segment.text.length !== nextSegment.text.length
+                );
+            });
+        }
+
+        function createDigitContainer(char) {
+            const wrap = document.createElement("span");
+            const digit = document.createElement("span");
+            const isNumeric = Number.isFinite(Number.parseInt(char, 10));
+
+            wrap.className = `digit-container${isNumeric ? "" : " sep"}`;
+            digit.className = "digit current";
+            digit.textContent = char;
+            wrap.appendChild(digit);
+            return wrap;
+        }
+
+        function getDigitContainers(element) {
+            return Array.from(element.querySelectorAll(".digit-container"));
         }
     }
 
@@ -534,10 +672,14 @@
             const settingsMenuSafeBottom = menuRect
                 ? Math.max(window.innerHeight - menuRect.top + 12, 28)
                 : 16;
+            const cheatsIndicatorOffset = menuRect
+                ? Math.max(window.innerHeight - menuRect.top + 20, 108)
+                : -120;
 
             // these css vars let the layout and overlays dodge the bottom menu.
             refsValue.body.style.setProperty("--split-menu-space", `${splitMenuSpace}px`);
             refsValue.body.style.setProperty("--settings-menu-safe-bottom", `${settingsMenuSafeBottom}px`);
+            refsValue.body.style.setProperty("--cheats-indicator-offset", `${cheatsIndicatorOffset}px`);
 
             if (stateValue.isBwMode) {
                 return;
@@ -570,15 +712,67 @@
 
     function createCounterController(refsValue, stateValue, rollingTextValue, audioValue) {
         return {
+            applyCheatValue,
             handleResetClick,
             spawnEffect,
+            updateCheatsIndicator,
             updateDisplay,
         };
 
-        function updateDisplay() {
-            rollingTextValue.update(refsValue.counter, String(stateValue.clicks));
+        function updateDisplay(forceRender = false) {
+            const counterText = String(stateValue.clicks);
+            const isSafetyActive = stateValue.counterSafetyEnabled;
+            const shouldShowWarning = stateValue.activated && isSafetyActive && counterText.includes("67");
+            const warningPrimaryText = counterText === "67"
+                ? "number prevented from showing for safety reasons"
+                : "part of the number prevented from showing for safety reasons";
+
+            refsValue.counter.dataset.counterSafety = isSafetyActive ? "on" : "off";
+            refsValue.counter.classList.toggle("negative", stateValue.clicks < 0);
+            rollingTextValue.update(refsValue.counter, counterText, { forceRender });
+            refsValue.counterWarning.hidden = !shouldShowWarning;
+            refsValue.counterWarningPrimary.textContent = warningPrimaryText;
+            refsValue.cheatCounterValue.value = counterText;
+
             storeValue(STORAGE_KEYS.clicks, stateValue.clicks);
-            bumpCounter();
+
+            if (!forceRender) {
+                bumpCounter();
+            }
+        }
+
+        function updateCheatsIndicator() {
+            const shouldShow = stateValue.hasUsedCheats;
+            refsValue.cheatsIndicator.textContent = stateValue.cheatsEnabled ? "cheats are enabled" : "cheats were enabled";
+
+            if (!shouldShow || !stateValue.activated || stateValue.isBwMode) {
+                if (refsValue.cheatsIndicator.hidden) {
+                    return;
+                }
+
+                refsValue.cheatsIndicator.classList.remove("show");
+                refsValue.cheatsIndicator.classList.add("fade-out");
+                window.setTimeout(() => {
+                    if (stateValue.hasUsedCheats) {
+                        return;
+                    }
+
+                    refsValue.cheatsIndicator.hidden = true;
+                    refsValue.cheatsIndicator.classList.remove("fade-out");
+                }, 350);
+                return;
+            }
+
+            if (!refsValue.cheatsIndicator.hidden) {
+                refsValue.cheatsIndicator.classList.remove("fade-out");
+                return;
+            }
+
+            refsValue.cheatsIndicator.hidden = false;
+            requestAnimationFrame(() => {
+                refsValue.cheatsIndicator.classList.remove("fade-out");
+                refsValue.cheatsIndicator.classList.add("show");
+            });
         }
 
         function bumpCounter() {
@@ -601,6 +795,29 @@
                     window.clearInterval(intervalId);
                 }
             }, 120);
+        }
+
+        function applyCheatValue() {
+            if (!stateValue.cheatsEnabled) {
+                return;
+            }
+
+            if (refsValue.cheatCounterValue.value.trim() === "") {
+                return;
+            }
+
+            const parsedValue = Number.parseInt(refsValue.cheatCounterValue.value, 10);
+
+            if (!Number.isFinite(parsedValue)) {
+                refsValue.cheatCounterValue.value = String(stateValue.clicks);
+                return;
+            }
+
+            stateValue.clicks = parsedValue;
+            stateValue.hasUsedCheats = true;
+            storeValue(STORAGE_KEYS.cheatsUsed, true);
+            updateDisplay(true);
+            updateCheatsIndicator();
         }
 
         function spawnEffect(event, isTen) {
@@ -659,9 +876,12 @@
 
         function confirmReset() {
             stateValue.clicks = 0;
+            stateValue.hasUsedCheats = false;
+            storeValue(STORAGE_KEYS.cheatsUsed, false);
             window.clearTimeout(stateValue.resetTimeoutId);
             clearResetState();
-            updateDisplay();
+            updateDisplay(true);
+            updateCheatsIndicator();
             audioValue.play("reset");
             spawnExplosion();
         }
@@ -780,6 +1000,7 @@
             handleHammerMouseDown,
             handlePointerMove,
             handleSlimeClick,
+            handleSlimeContextMenu,
             handleWheel,
             handleWindowMouseUp,
         };
@@ -815,6 +1036,7 @@
             }
 
             layoutValue.updateResponsiveLayout();
+            counterValue.updateCheatsIndicator();
         }
 
         function handleBodyMouseDown(event) {
@@ -865,6 +1087,25 @@
             if (!stateValue.hueOff) {
                 refsValue.slime.classList.add("hue-anim");
             }
+        }
+
+        function handleSlimeContextMenu(event) {
+            if (
+                stateValue.isBwMode
+                || stateValue.isSlimeBlocked
+                || !stateValue.cheatsEnabled
+                || !stateValue.rightClickSubtractEnabled
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+            showUi();
+            stateValue.clicks -= 1;
+            stateValue.hasUsedCheats = true;
+            storeValue(STORAGE_KEYS.cheatsUsed, true);
+            counterValue.updateDisplay(true);
+            counterValue.updateCheatsIndicator();
         }
 
         function handlePointerMove(event) {
@@ -995,6 +1236,16 @@
         return localStorage.getItem(key) === "true";
     }
 
+    function loadBooleanWithDefault(key, fallback) {
+        const rawValue = localStorage.getItem(key);
+
+        if (rawValue === null) {
+            return fallback;
+        }
+
+        return rawValue === "true";
+    }
+
     function loadNumber(key, fallback) {
         const rawValue = localStorage.getItem(key);
         const parsedValue = Number(rawValue);
@@ -1007,5 +1258,10 @@
 
     function storeValue(key, value) {
         localStorage.setItem(key, String(value));
+    }
+
+    function syncCheatControls() {
+        const isEnabled = refs.cheatsToggle.checked;
+        refs.cheatCounterValue.disabled = !isEnabled;
     }
 })();

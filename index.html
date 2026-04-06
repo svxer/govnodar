@@ -26,7 +26,19 @@
     <div id="text-container">
         <div id="date" title="Today&#8482;"></div>
         <div id="clock"></div>
-        <div id="counter" title="your score"></div>
+        <div id="counter-block">
+            <div id="counter" title="your score"></div>
+            <div id="counter-warning" aria-live="polite" hidden>
+                <span class="counter-warning-line">
+                    <span class="counter-warning-prefix">-</span>
+                    <span id="counter-warning-primary" class="counter-warning-text">number prevented from showing for safety reasons</span>
+                </span>
+                <span class="counter-warning-line counter-warning-line-secondary">
+                    <span class="counter-warning-prefix" aria-hidden="true"></span>
+                    <span class="counter-warning-text">(you can turn thiss off in settings)</span>
+                </span>
+            </div>
+        </div>
     </div>
 
     <div id="spotify-widget" aria-label="spotify playlist">
@@ -92,6 +104,13 @@
                         </span>
                         <input type="checkbox" id="bg-toggle">
                     </label>
+                    <label class="settings-item" for="counter-safety-toggle" title="blurs restricted numbers in the counter">
+                        <span class="settings-copy">
+                            <span class="settings-title">counter safety</span>
+                            <span class="settings-desc">blurs restricted numbers in the counter</span>
+                        </span>
+                        <input type="checkbox" id="counter-safety-toggle">
+                    </label>
                 </div>
                 <div class="settings-section">
                     <p class="settings-section-title">layout</p>
@@ -132,9 +151,37 @@
                         </div>
                     </div>
                 </div>
+                <div class="settings-section">
+                    <p class="settings-section-title">cheats</p>
+                    <label class="settings-item" for="cheats-toggle" title="enables cheat controls for the counter">
+                        <span class="settings-copy">
+                            <span class="settings-title">enable cheats</span>
+                            <span class="settings-desc">turns on counter editing controls</span>
+                        </span>
+                        <input type="checkbox" id="cheats-toggle">
+                    </label>
+                    <div class="settings-item settings-cheat-row" title="sets the counter to a specific number">
+                        <span class="settings-copy">
+                            <span class="settings-title">counter number</span>
+                            <span class="settings-desc">set the current counter value manually</span>
+                        </span>
+                        <div class="settings-inline-controls">
+                            <input type="number" id="cheat-counter-value" class="settings-number-input" aria-label="counter number">
+                        </div>
+                    </div>
+                    <label class="settings-item" for="right-click-subtract-toggle" title="lets right click subtract from the counter">
+                        <span class="settings-copy">
+                            <span class="settings-title">right click subtract</span>
+                            <span class="settings-desc">right clicking the slime subtracts from the counter</span>
+                        </span>
+                        <input type="checkbox" id="right-click-subtract-toggle">
+                    </label>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="cheats-indicator" title="this text can be removed by resetting the counter" hidden>cheats are enabled</div>
 
     <div id="menu">
         <button id="reset" class="menu-button" type="button" title="resets your score">&#x27f2;</button>

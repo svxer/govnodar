@@ -228,11 +228,35 @@ body.compact-stack #counter {
     font-size: 2.15rem;
 }
 
+body.split-layout #counter-warning {
+    position: static;
+    margin-top: 8px;
+    transform: none;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    max-width: min(42ch, calc(100vw - 48px));
+}
+
+body.split-layout #counter-block,
+body.split-layout #counter {
+    align-items: flex-start;
+    align-self: flex-start;
+}
+
 #date,
 #clock,
 #counter {
     display: flex;
     pointer-events: auto;
+}
+
+#counter-block {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
 }
 
 #date {
@@ -273,6 +297,58 @@ body.compact-stack #counter {
     text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
 }
 
+#counter.negative {
+    color: #ff8585;
+}
+
+#counter-warning {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    text-align: center;
+    pointer-events: none;
+    translate: 0 0;
+    animation: counter-warning-float 4.8s ease-in-out infinite;
+}
+
+#counter-warning .counter-warning-line {
+    display: grid;
+    grid-template-columns: 1.15em minmax(0, 1fr);
+    align-items: start;
+    width: 100%;
+}
+
+#counter-warning .counter-warning-prefix {
+    display: inline-flex;
+    justify-content: center;
+}
+
+#counter-warning .counter-warning-text {
+    display: block;
+}
+
+#counter-warning[hidden] {
+    display: none;
+}
+
+@keyframes counter-warning-float {
+    0%,
+    100% {
+        translate: 0 0;
+    }
+
+    50% {
+        translate: 0 -6px;
+    }
+}
+
 /* rolling text */
 
 .digit-container {
@@ -281,6 +357,24 @@ body.compact-stack #counter {
     height: 1em;
     width: 0.6em;
     text-align: center;
+}
+
+.digit-group {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
+.digit-group.blur-group {
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    padding: 0 0.04em;
+    margin: 0 -0.04em;
+}
+
+.digit-group.blur-group .digit {
+    pointer-events: none;
+    filter: blur(0.22em);
 }
 
 .sep {
@@ -719,11 +813,61 @@ body.compact-stack #counter {
     line-height: 1.35;
 }
 
-.settings-item input {
+.settings-item input:not(.settings-number-input) {
     margin: 0;
     width: 18px;
     height: 18px;
     flex: 0 0 auto;
+}
+
+.settings-cheat-row {
+    cursor: default;
+}
+
+.settings-cheat-row:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--soft-border);
+    background: var(--soft-surface);
+}
+
+.settings-inline-controls {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.settings-number-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+    width: 220px;
+    max-width: min(220px, 42vw);
+    min-width: 0;
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.settings-number-input::-webkit-outer-spin-button,
+.settings-number-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.settings-number-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+.settings-number-input:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .settings-select {
@@ -760,6 +904,37 @@ body.compact-stack #counter {
 
 .settings-item[data-select-target] {
     user-select: none;
+}
+
+#cheats-indicator {
+    position: fixed;
+    left: 50%;
+    bottom: var(--cheats-indicator-offset, -120px);
+    transform: translateX(-50%);
+    z-index: 10001;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.8rem;
+    line-height: 1;
+    backdrop-filter: blur(3px) saturate(200%);
+    -webkit-backdrop-filter: blur(3px) saturate(200%);
+    opacity: 0;
+    transition: bottom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.5s ease;
+}
+
+#cheats-indicator.show {
+    opacity: 1;
+}
+
+#cheats-indicator.fade-out {
+    opacity: 0;
+}
+
+#cheats-indicator[hidden] {
+    display: none;
 }
 
 .settings-subsection {
@@ -1051,6 +1226,25 @@ body.compact-stack #counter {
         width: calc((100% - 16px) / 3);
         padding: 8px;
         min-width: 0;
+    }
+
+    .settings-cheat-row {
+        align-items: flex-start;
+    }
+
+    .settings-inline-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .settings-number-input {
+        flex: 1 1 auto;
+        max-width: none;
+    }
+
+    #cheats-indicator {
+        max-width: calc(100vw - 32px);
+        text-align: center;
     }
 }
 
