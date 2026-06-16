@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>roflani</title>
     <link rel="icon" type="image/png" href="../index_files/stupid slime image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,6 +19,9 @@
             height: 100%;
             overflow: hidden;
             background-color: black;
+            font-family: 'Google Sans', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         img {
@@ -31,23 +37,42 @@
     <audio id="bgAudio" loop>
         <source src="../index_files/kruzhka.mp3" type="audio/mpeg">
     </audio>
-    
+
+    <div id="overlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:9999;cursor:pointer;">
+        <div id="overlayText" style="color:#fff;font-size:32px;font-weight:700;text-transform:lowercase;text-shadow:0 12px 30px rgba(255,255,255,0.22);">click here</div>
+    </div>
+
     <script>
         const audio = document.getElementById('bgAudio');
-        
-        // Try to autoplay
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                // Autoplay blocked - play on first interaction
-                document.addEventListener('click', () => {
-                    audio.play();
-                }, { once: true });
-            });
+        const overlay = document.getElementById('overlay');
+        const steamUrl = "steam://rungameid/753640";
+
+        function startAndRedirect() {
+            // Unmute and try to play (user gesture comes from the click on overlay)
+            audio.muted = false;
+            const p = audio.play();
+            if (p !== undefined) {
+                p.catch(() => {
+                    // If play still fails, continue anyway
+                }).finally(() => {
+                    overlay.style.display = 'none';
+                    setTimeout(() => { location.href = steamUrl; }, 300);
+                });
+            } else {
+                overlay.style.display = 'none';
+                setTimeout(() => { location.href = steamUrl; }, 300);
+            }
         }
-        
-        // Also auto-redirect to Steam
-        location.href = "steam://rungameid/753640";
+
+        // Play on any click (overlay covers viewport)
+        overlay.addEventListener('click', startAndRedirect, { once: true });
+
+        // Fallback: also listen to document clicks in case overlay is removed
+        document.addEventListener('click', function docOnce() {
+            document.removeEventListener('click', docOnce);
+            // If overlay still visible, trigger
+            if (overlay && overlay.style.display !== 'none') startAndRedirect();
+        });
     </script>
 </body>
 </html>
