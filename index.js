@@ -13,7 +13,6 @@
         cheatsUsed: "cheatsUsed",
         rightClickSubtractEnabled: "rightClickSubtractEnabled",
         scrollChangeEnabled: "scrollChangeEnabled",
-        lastNotifyAt: "slimeLastNotifyAt",
     };
 
     const AUDIO_SOURCES = {
@@ -24,11 +23,6 @@
         bonk: "./index_files/bonk.mp3",
     };
 
-    const NOTIFY_CONFIG = {
-        endpoint: "/slime-click",
-        cooldownMs: 60 * 60 * 1000,
-    };
-
     // keep all dom lookups in one place so the feature modules stay focused.
     const refs = getRefs();
     const state = createState();
@@ -37,10 +31,9 @@
     const background = createBackgroundAnimator(refs.bgCanvas, state);
     const layout = createLayoutManager(refs, state);
     const counter = createCounterController(refs, state, rollingText, audio);
-    const notifier = createSlimeNotifier(NOTIFY_CONFIG);
     const clock = createClockController(refs, state, rollingText, audio);
     const overlays = createOverlayController(refs, audio, layout);
-    const slime = createSlimeController(refs, state, audio, layout, counter, notifier);
+    const slime = createSlimeController(refs, state, audio, layout, counter);
 
     initialize();
 
@@ -951,43 +944,6 @@
         }
     }
 
-    function createSlimeNotifier(config) {
-        return {
-            notify,
-        };
-
-        async function notify() {
-            const now = Date.now();
-            const lastNotifyAt = Number(localStorage.getItem(STORAGE_KEYS.lastNotifyAt)) || 0;
-
-            // throttle network pings so repeated clicking does not spam the endpoint.
-            if (now - lastNotifyAt < config.cooldownMs) {
-                return;
-            }
-
-            try {
-                const response = await fetch(config.endpoint, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        language: navigator.language || "unknown",
-                        screen: `${window.screen.width}x${window.screen.height}`,
-                        page: window.location.href,
-                        userAgent: navigator.userAgent,
-                    }),
-                    keepalive: true,
-                });
-
-                if (response.ok) {
-                    storeValue(STORAGE_KEYS.lastNotifyAt, now);
-                }
-            } catch (error) {}
-        }
-    }
-
     function createOverlayController(refsValue, audioValue, layoutValue) {
         return {
             closePrimaryUi,
@@ -1043,7 +999,7 @@
             buttonElement.classList.toggle("active-widget", isOpen);
         }
     }
-    function createSlimeController(refsValue, stateValue, audioValue, layoutValue, counterValue, notifierValue) {
+    function createSlimeController(refsValue, stateValue, audioValue, layoutValue, counterValue) {
         return {
             applyTransform,
             handleBodyMouseDown,
@@ -1133,7 +1089,6 @@
             counterValue.setChangeDirection("up");
             counterValue.updateDisplay();
             counterValue.spawnEffect(event, false);
-            notifierValue.notify();
 
             if (!stateValue.hueOff) {
                 refsValue.slime.classList.add("hue-anim");
