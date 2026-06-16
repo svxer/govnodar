@@ -1,5 +1,53 @@
 <!DOCTYPE html>
-<script>
-location.href = "steam://rungameid/753640";
-</script>
-<a href="steam://rungameid/753640">Launch Game</a>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>roflani</title>
+    <link rel="icon" type="image/png" href="../index_files/stupid slime image.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: black;
+        }
+        
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <img src="../index_files/stupid slime image.png" alt="roflani">
+    <audio id="bgAudio" loop>
+        <source src="../index_files/kruzhka.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        const audio = document.getElementById('bgAudio');
+        
+        // Try to autoplay
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Autoplay blocked - play on first interaction
+                document.addEventListener('click', () => {
+                    audio.play();
+                }, { once: true });
+            });
+        }
+        
+        // Also auto-redirect to Steam
+        location.href = "steam://rungameid/753640";
+    </script>
+</body>
+</html>
