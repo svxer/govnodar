@@ -72,8 +72,6 @@
         refs.slime.addEventListener("contextmenu", slime.handleSlimeContextMenu);
 
         refs.resetBtn.addEventListener("click", counter.handleResetClick);
-        refs.spotifyBtn.addEventListener("click", overlays.toggleSpotifyWidget);
-
         refs.pagesBtn.addEventListener("click", handlePagesButtonClick);
         refs.pagesClose.addEventListener("click", () => overlays.togglePagesMenu(false));
         refs.pagesMenu.addEventListener("click", handlePagesBackdropClick);
@@ -285,9 +283,7 @@
             resetBtn: document.getElementById("reset"),
             settingsBtn: document.getElementById("settings-btn"),
             pagesBtn: document.getElementById("pages-btn"),
-            spotifyBtn: document.getElementById("spotify-btn"),
             closeBtn: document.getElementById("close"),
-            spotifyWidget: document.getElementById("spotify-widget"),
             pagesMenu: document.getElementById("pages-menu"),
             pagesClose: document.getElementById("pages-close"),
             settingsMenu: document.getElementById("settings-menu"),
@@ -949,14 +945,7 @@
             closePrimaryUi,
             togglePagesMenu,
             toggleSettingsMenu,
-            toggleSpotifyWidget,
         };
-
-        function toggleSpotifyWidget() {
-            const isOpen = refsValue.spotifyWidget.classList.toggle("open");
-            refsValue.spotifyBtn.classList.toggle("active-widget", isOpen);
-            audioValue.play(isOpen ? "uiIn" : "uiOut");
-        }
 
         function togglePagesMenu(forceOpen) {
             const isOpen = typeof forceOpen === "boolean"

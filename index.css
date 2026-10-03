@@ -15,7 +15,6 @@
     --button-glow: 0 0 12px rgba(255, 255, 255, 0.15);
     --close-accent: #ff5a52;
     --reset-accent: #e7c039;
-    --spotify-accent: #25d865;
     --pages-accent: #7aa3ff;
     --settings-accent: #b48dff;
 }
@@ -511,22 +510,6 @@ body.split-layout #counter {
     color: black !important;
 }
 
-#menu #spotify-btn:hover,
-#menu #spotify-btn.active-widget {
-    border-color: var(--spotify-accent) !important;
-    box-shadow: 0 0 15px rgba(37, 216, 101, 0.3) !important;
-}
-
-#menu #spotify-btn:active,
-#menu #spotify-btn.active-widget {
-    background: var(--spotify-accent) !important;
-}
-
-#menu #spotify-btn:active img,
-#menu #spotify-btn.active-widget img {
-    filter: brightness(0);
-}
-
 #menu #pages-btn:hover,
 #menu #pages-btn.active-widget {
     border-color: var(--pages-accent) !important;
@@ -569,31 +552,6 @@ body.split-layout #counter {
     width: 20px;
     height: 20px;
     display: block;
-}
-
-/* spotify drawer */
-
-#spotify-widget {
-    position: fixed;
-    top: 20px;
-    bottom: 20px;
-    right: 20px;
-    width: 360px;
-    z-index: 9000;
-    border-radius: 12px;
-    transform: translateX(150%);
-    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s ease;
-}
-
-#spotify-widget.open {
-    transform: translateX(0);
-}
-
-.spotify-frame {
-    width: 100%;
-    height: 100% !important;
-    border: none;
-    border-radius: 12px;
 }
 
 /* overlays */
@@ -1172,7 +1130,6 @@ body.split-layout #counter {
 .bw-mode #bg-canvas,
 .bw-mode #menu,
 .bw-mode #text-container,
-.bw-mode #spotify-widget,
 .bw-mode #pages-menu,
 .bw-mode #settings-menu,
 .bw-mode #hammer {
@@ -1270,15 +1227,10 @@ body.split-layout #counter {
         order: 3;
     }
 
-    #menu #spotify-btn {
-        order: 4;
-    }
-
     #menu #reset,
-    #menu #close,
-    #menu #spotify-btn {
-        flex: 1 1 calc((100% - 16px) / 3);
-        width: calc((100% - 16px) / 3);
+    #menu #close {
+        flex: 1 1 calc((100% - 8px) / 2);
+        width: calc((100% - 8px) / 2);
         padding: 8px;
         min-width: 0;
     }
@@ -1339,7 +1291,6 @@ body.viewport-vertical.menu-force-horizontal #menu #settings-btn {
 }
 
 body.viewport-vertical.menu-force-horizontal #menu #reset,
-body.viewport-vertical.menu-force-horizontal #menu #spotify-btn,
 body.viewport-vertical.menu-force-horizontal #menu #close {
     flex: 0 0 auto !important;
 }
@@ -1364,12 +1315,8 @@ body.menu-force-horizontal #menu #pages-btn {
     order: 3 !important;
 }
 
-body.menu-force-horizontal #menu #spotify-btn {
-    order: 4 !important;
-}
-
 body.menu-force-horizontal #menu #close {
-    order: 5 !important;
+    order: 4 !important;
 }
 
 body.menu-force-vertical #menu {
@@ -1411,14 +1358,9 @@ body.menu-force-vertical #menu #close {
     order: 3 !important;
 }
 
-body.menu-force-vertical #menu #spotify-btn {
-    order: 4 !important;
-}
-
 body.menu-force-vertical #menu #reset,
-body.menu-force-vertical #menu #close,
-body.menu-force-vertical #menu #spotify-btn {
-    flex: 1 1 calc((100% - 16px) / 3) !important;
-    width: calc((100% - 16px) / 3) !important;
+body.menu-force-vertical #menu #close {
+    flex: 1 1 calc((100% - 8px) / 2) !important;
+    width: calc((100% - 8px) / 2) !important;
     padding: 8px !important;
 }
