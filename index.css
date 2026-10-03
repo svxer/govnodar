@@ -560,6 +560,8 @@ body.split-layout #counter {
     /* pages and settings reuse the same blurred fullscreen overlay pattern. */
     position: fixed;
     inset: 0;
+    padding: 16px 16px var(--settings-menu-safe-bottom) 16px;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -583,8 +585,6 @@ body.split-layout #counter {
 
 #settings-menu {
     z-index: 9550;
-    padding: 16px 16px var(--settings-menu-safe-bottom) 16px;
-    box-sizing: border-box;
 }
 
 .panel-card {
@@ -710,7 +710,7 @@ body.split-layout #counter {
 #settings-card {
     width: min(92vw, 440px);
     max-width: 100%;
-    max-height: min(calc(100vh - 16px - var(--settings-menu-safe-bottom)), 720px);
+    max-height: min(calc(100vh - 32px - var(--settings-menu-safe-bottom)), 720px);
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
@@ -1153,8 +1153,7 @@ body.split-layout #counter {
 @media (max-width: 900px) {
     #pages-menu,
     #settings-menu {
-        padding: 20px;
-        box-sizing: border-box;
+        padding: 20px 20px var(--settings-menu-safe-bottom);
     }
 
     #pages-card {
@@ -1186,7 +1185,11 @@ body.split-layout #counter {
 @media (max-width: 700px) {
     #pages-menu,
     #settings-menu {
-        padding: 16px;
+        padding: 16px 16px var(--settings-menu-safe-bottom);
+    }
+
+    #settings-card {
+        max-height: min(calc(100vh - 32px - var(--settings-menu-safe-bottom)), 720px);
     }
 
     #pages-card,
