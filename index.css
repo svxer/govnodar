@@ -15,8 +15,8 @@
     --button-glow: 0 0 12px rgba(255, 255, 255, 0.15);
     --close-accent: #ff5a52;
     --reset-accent: #e7c039;
-    --pages-accent: #7aa3ff;
-    --settings-accent: #b48dff;
+    --pages-accent: #429d62;
+    --settings-accent: #7aa3ff;
 }
 
 /* page frame */
@@ -513,7 +513,7 @@ body.split-layout #counter {
 #menu #pages-btn:hover,
 #menu #pages-btn.active-widget {
     border-color: var(--pages-accent) !important;
-    box-shadow: 0 0 15px rgba(122, 163, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(66, 157, 98, 0.3) !important;
 }
 
 #menu #pages-btn:active,
@@ -529,7 +529,7 @@ body.split-layout #counter {
 #menu #settings-btn:hover,
 #menu #settings-btn.active-widget {
     border-color: var(--settings-accent) !important;
-    box-shadow: 0 0 15px rgba(180, 141, 255, 0.3) !important;
+    box-shadow: 0 0 15px rgba(122, 163, 255, 0.3) !important;
 }
 
 #menu #settings-btn:active,
