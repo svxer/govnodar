@@ -61,7 +61,13 @@
     function bindEvents() {
         window.addEventListener("resize", handleResize);
         window.addEventListener("load", handleWindowLoad);
+        refs.menu.addEventListener("transitionend", (event) => {
+            if (event.propertyName === "bottom") {
+                layout.updateResponsiveLayout();
+            }
+        });
         window.addEventListener("mouseup", slime.handleWindowMouseUp);
+        window.addEventListener("mouseout", slime.handlePointerLeave);
         window.addEventListener("wheel", slime.handleWheel, { passive: true });
 
         document.addEventListener("mousemove", slime.handlePointerMove);
@@ -628,7 +634,10 @@
         };
 
         function updateLayoutControlVisibility() {
-            refsValue.separateLayoutSettings.hidden = stateValue.layoutControlMode !== "separate";
+            const isSeparateLayout = stateValue.layoutControlMode === "separate";
+            refsValue.separateLayoutSettings.classList.toggle("is-collapsed", !isSeparateLayout);
+            refsValue.separateLayoutSettings.setAttribute("aria-hidden", String(!isSeparateLayout));
+            refsValue.separateLayoutSettings.inert = !isSeparateLayout;
         }
 
         function getSlimeBaseY() {
@@ -994,6 +1003,7 @@
             handleBodyMouseDown,
             handleHammerMouseDown,
             handlePointerMove,
+            handlePointerLeave,
             handleSlimeClick,
             handleSlimeContextMenu,
             handleWheel,
@@ -1124,6 +1134,17 @@
             stateValue.lastX = (event.clientX / window.innerWidth - 0.5) * 50;
             stateValue.lastY = (event.clientY / window.innerHeight - 0.5) * 50;
             applyTransform(stateValue.lastX, stateValue.lastY);
+        }
+
+        function handlePointerLeave(event) {
+            if (event.relatedTarget !== null) {
+                return;
+            }
+
+            stateValue.isSlimeDown = false;
+            stateValue.lastX = 0;
+            stateValue.lastY = 0;
+            applyTransform();
         }
 
         function handleWheel(event) {
@@ -1261,7 +1282,9 @@
 
     function syncCheatControls() {
         const isEnabled = refs.cheatsToggle.checked;
+        refs.cheatsToggle.closest(".settings-section").classList.toggle("cheats-disabled", !isEnabled);
         refs.cheatCounterValue.disabled = !isEnabled;
         refs.scrollChangeToggle.disabled = !isEnabled;
+        refs.rightClickSubtractToggle.disabled = !isEnabled;
     }
 })();

@@ -560,13 +560,14 @@ body.split-layout #counter {
     /* pages and settings reuse the same blurred fullscreen overlay pattern. */
     position: fixed;
     inset: 0;
-    padding: 16px 16px var(--settings-menu-safe-bottom) 16px;
+    --overlay-top-space: 16px;
+    padding: var(--overlay-top-space) 16px var(--settings-menu-safe-bottom);
     box-sizing: border-box;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     opacity: 0;
     pointer-events: none;
@@ -642,6 +643,10 @@ body.split-layout #counter {
 
 #pages-card {
     width: min(92vw, 520px);
+    max-height: calc(100vh - var(--overlay-top-space) - var(--settings-menu-safe-bottom));
+    max-height: calc(100dvh - var(--overlay-top-space) - var(--settings-menu-safe-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 #pages-list,
@@ -651,6 +656,49 @@ body.split-layout #counter {
 .settings-copy {
     display: flex;
     flex-direction: column;
+}
+
+.settings-subsection {
+    max-height: 240px;
+    overflow: hidden;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        max-height 0.34s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.18s ease-out,
+        transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-subsection > .settings-item {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity 0.24s ease-out,
+        transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-subsection.is-collapsed {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+}
+
+.settings-subsection.is-collapsed > .settings-item {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transition-delay: 0s;
+}
+
+.settings-subsection:not(.is-collapsed) > .settings-item:nth-child(2) {
+    transition-delay: 50ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .settings-subsection,
+    .settings-subsection > .settings-item {
+        transition: none;
+    }
 }
 
 #pages-list {
@@ -665,6 +713,7 @@ body.split-layout #counter {
     border: 1px solid var(--soft-border);
     text-transform: lowercase;
     transition:
+        opacity 0.2s ease,
         transform 0.3s ease,
         background 0.3s ease,
         border-color 0.3s ease,
@@ -710,7 +759,8 @@ body.split-layout #counter {
 #settings-card {
     width: min(92vw, 440px);
     max-width: 100%;
-    max-height: min(calc(100vh - 32px - var(--settings-menu-safe-bottom)), 720px);
+    max-height: calc(100vh - var(--overlay-top-space) - var(--settings-menu-safe-bottom));
+    max-height: calc(100dvh - var(--overlay-top-space) - var(--settings-menu-safe-bottom));
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
@@ -740,8 +790,19 @@ body.split-layout #counter {
     gap: 14px;
 }
 
+@media (min-width: 701px) {
+    body.split-layout #settings-card {
+        width: min(92vw, 860px);
+    }
+}
+
 .settings-section {
     gap: 10px;
+}
+
+.settings-section.cheats-disabled > .settings-item:nth-child(n + 3) {
+    opacity: 0.45;
+    pointer-events: none;
 }
 
 .settings-section-title {
@@ -1153,7 +1214,8 @@ body.split-layout #counter {
 @media (max-width: 900px) {
     #pages-menu,
     #settings-menu {
-        padding: 20px 20px var(--settings-menu-safe-bottom);
+        --overlay-top-space: 20px;
+        padding: var(--overlay-top-space) 20px var(--settings-menu-safe-bottom);
     }
 
     #pages-card {
@@ -1185,11 +1247,8 @@ body.split-layout #counter {
 @media (max-width: 700px) {
     #pages-menu,
     #settings-menu {
-        padding: 16px 16px var(--settings-menu-safe-bottom);
-    }
-
-    #settings-card {
-        max-height: min(calc(100vh - 32px - var(--settings-menu-safe-bottom)), 720px);
+        --overlay-top-space: 16px;
+        padding: var(--overlay-top-space) 16px var(--settings-menu-safe-bottom);
     }
 
     #pages-card,
@@ -1239,6 +1298,7 @@ body.split-layout #counter {
     }
 
     .settings-cheat-row {
+        flex-direction: column;
         align-items: flex-start;
     }
 
@@ -1248,8 +1308,9 @@ body.split-layout #counter {
     }
 
     .settings-number-input {
-        flex: 1 1 auto;
+        width: 100%;
         max-width: none;
+        flex: 1 1 auto;
     }
 
     #cheats-indicator {
